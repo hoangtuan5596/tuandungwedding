@@ -1,0 +1,727 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <!-- Chosen Palette: Warm Romantic Neutrals -->
+    <!-- Application Structure Plan: Thiết kế ứng dụng theo mô hình trang đích (landing page) cuộn dọc duy nhất, kết hợp với thanh điều hướng cố định (sticky navigation). Cấu trúc này được chọn vì nó tối ưu cho việc kể chuyện theo một dòng chảy tự nhiên, liền mạch, đồng thời vẫn cho phép người dùng truy cập nhanh đến các phần thông tin quan trọng (Chi tiết, Địa điểm, Câu chuyện, RSVP) mà không cần tải lại trang. Đây là kiến trúc thông tin cân bằng giữa sự đơn giản, trực quan và hiệu quả, phù hợp nhất với nội dung của một tấm thiệp mời sự kiện. -->
+    <!-- Visualization & Content Choices: 
+        - Thông tin sự kiện -> Mục tiêu: Thông báo rõ ràng -> Trình bày: Các khối văn bản được phân cấp bằng HTML/CSS và biểu tượng Unicode -> Tương tác: Không -> Lý do: Đảm bảo thông tin cốt lõi dễ đọc, dễ nắm bắt nhất.
+        - Bản đồ -> Mục tiêu: Hướng dẫn địa điểm -> Trình bày: Nhúng Google Maps (iframe) -> Tương tác: Điều khiển bản đồ, nút mở chỉ đường -> Lý do: Cung cấp công cụ chỉ đường quen thuộc và tiện lợi cho khách mời.
+        - Câu chuyện tình yêu -> Mục tiêu: Tạo cảm xúc, gây ấn tượng -> Trình bày: Biểu đồ cột ngang (Chart.js/Canvas) trực quan hóa các cột mốc -> Tương tác: Chú giải công cụ (tooltip) khi di chuột -> Lý do: Kể chuyện bằng dữ liệu một cách sáng tạo, tạo điểm nhấn độc đáo và thu hút.
+        - Thư viện ảnh -> Mục tiêu: Chia sẻ khoảnh khắc -> Trình bày: Slideshow ảnh (HTML/CSS/JS) -> Tương tác: Nút chuyển ảnh, tự động chạy -> Lý do: Trình bày nhiều hình ảnh một cách gọn gàng, sống động.
+        - RSVP -> Mục tiêu: Thu thập phản hồi -> Trình bày: Biểu mẫu (form) HTML -> Tương tác: Nhập liệu, tích chọn, nút gửi và tích hợp AI tạo lời chúc -> Lý do: Tối ưu hóa quy trình thu thập thông tin khách mời, tăng tương tác với tính năng AI.
+    -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hoàng Tuấn & Hoàng Dung</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+      <link rel="icon" type="image/gif" href="https://www.animationsoftware7.com/img/agifs/effect04.gif" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;700&family=Montserrat:wght@400;500;600&display=swap" rel="stylesheet">
+<!-- Font Awesome for icons -->
+    <!-- SoundCloud Widget API -->
+    <script src="https://w.soundcloud.com/player/api.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+    <style>
+        html {
+            scroll-behavior: smooth;
+        }
+        body {
+            font-family: 'Montserrat', sans-serif;
+             background-image: url('v868_14.jpg');
+            background-attachment: fixed;
+            background-size: contain;
+            /* Đổi con trỏ chuột thành hình trái tim */
+            /* Sử dụng SVG data URI để không phụ thuộc file ngoài, có hotspot chính xác và khớp màu với theme */
+            cursor: url("data:image/svg+xml,%3Csvg width='24' height='24' viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M12.39 20.87a.696.696 0 0 1-.78 0C9.764 19.637 2 14.15 2 8.973c0-6.68 7.85-7.75 10-3.25 2.15-4.5 10-3.43 10 3.25 0 5.178-7.764 10.664-9.61 11.898z' fill='%23e11d48'/%3E%3C/svg%3E") 12 21, auto;
+        }
+        /* Đảm bảo con trỏ trái tim hiển thị trên cả các liên kết và nút bấm */
+        a, button {
+            cursor: inherit;
+        }
+        .font-dancing {
+            font-family: 'Dancing Script', cursive;
+        }
+        .hero-section {
+            background-image: url('v868_04.jpg');
+            background-size: contain;
+            background-position: center 30%;
+                background-repeat: no-repeat;
+        }
+        .text-shadow {
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+        }
+        .spinner {
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        .pulse-animation {
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(225, 29, 72, 0.7); }
+            70% { transform: scale(1.1); box-shadow: 0 0 10px 20px rgba(225, 29, 72, 0); }
+            100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(225, 29, 72, 0); }
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 300px;
+            max-height: 400px;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 350px;
+            }
+        }
+        .nav-link {
+            transition: color 0.3s, border-color 0.3s;
+        }
+        .no-scroll {
+            overflow: hidden;
+        }
+        .youtube-player-hidden {
+            position: absolute;
+            top: -9999px;
+            left: -9999px;
+            width: 1px;
+            height: 1px;
+        }
+        .object-cover {
+            object-fit: scale-down !important;
+        }
+    </style>
+</head>
+<body class="text-gray-700">    
+    <!-- Floating Bubbles Overlay -->
+    <div id="bubbles-overlay" class="fixed top-0 left-0 w-full h-full pointer-events-none z-40 overflow-hidden"></div>
+
+    <div class="max-w-4xl mx-auto bg-white/75 backdrop-blur-md shadow-2xl rounded-lg my-0 sm:my-8 overflow-hidden">
+        
+        <!-- Navigation -->
+        <nav id="navbar" class="sticky top-0 z-50 bg-rose-50/90 backdrop-blur-sm shadow-md">
+            <div class="max-w-4xl mx-auto px-4">
+                <div class="flex justify-between items-center h-16">
+                    <a href="#" class="font-dancing text-2xl text-rose-800">H.T & H.D</a>
+                    <!-- Desktop Menu -->
+                    <div class="hidden md:flex items-center space-x-6">
+                        <a href="#details" class="nav-link text-gray-600 hover:text-rose-600 border-b-2 border-transparent hover:border-rose-600 pb-1">Thông Tin</a>
+                        <a href="#locations" class="nav-link text-gray-600 hover:text-rose-600 border-b-2 border-transparent hover:border-rose-600 pb-1">Nơi Tổ Chức</a>
+                        <a href="#album" class="nav-link text-gray-600 hover:text-rose-600 border-b-2 border-transparent hover:border-rose-600 pb-1">Album Cưới</a>
+                        <a href="#rsvp" class="bg-rose-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-rose-700 transition-colors duration-300 text-sm">Phản Hồi</a>
+                    </div>
+                    <!-- Mobile Menu Button -->
+                    <div class="md:hidden">
+                        <button id="mobile-menu-button" class="text-gray-700 focus:outline-none">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <!-- Mobile Menu -->
+            <div id="mobile-menu" class="md:hidden hidden bg-white/95 backdrop-blur-sm">
+                <a href="#details" class="block py-3 px-4 text-sm text-gray-700 hover:bg-rose-50">Thông Tin</a>
+                <a href="#locations" class="block py-3 px-4 text-sm text-gray-700 hover:bg-rose-50">Nơi Tổ Chức</a>
+                <a href="#album" class="block py-3 px-4 text-sm text-gray-700 hover:bg-rose-50">Album Cưới</a>
+                <a href="#rsvp" class="block py-3 px-4 text-sm text-gray-700 hover:bg-rose-50">Phản Hồi</a>
+            </div>
+        </nav>
+        
+        <main>
+            <!-- Section 1: Home -->
+            <header class="hero-section h-[80vh] flex flex-col justify-center items-center text-white relative">
+                <div class="absolute inset-0 bg-black/40"></div>
+                <div class="relative z-10 text-center p-4">
+                    <h2 class="text-xl md:text-2xl tracking-widest mb-4 text-shadow">Save the Date</h2>
+                    <h1 class="font-dancing text-6xl md:text-7xl font-bold text-shadow">Hoàng Tuấn & Hoàng Dung</h1>
+                    <p class="mt-4 text-lg md:text-xl text-shadow">15.10.2025 – 01.11.2025</p>
+                </div>
+            </header>
+
+            <!-- Section 2: Event Details -->
+            <section id="details" class="p-6 sm:p-8 md:p-12 text-center py-16 md:py-24">
+                <div class="max-w-3xl mx-auto">
+                    <h2 class="font-dancing text-4xl text-rose-800 mb-4">Thông Tin Chi Tiết</h2>
+                    <p class="text-lg leading-relaxed mb-10">Mọi thông tin bạn cần cho ngày trọng đại của chúng tôi đều ở đây. Chúng tôi rất mong được chào đón bạn!</p>
+
+                    <div class="grid md:grid-cols-2 gap-8 text-left">
+                        <div>
+                            <h3 class="font-semibold text-2xl text-rose-900 mb-4 border-b-2 border-rose-100 pb-2 text-center">Lễ Đàn Gái</h3>
+                            <ul class="space-y-4">
+                                <li class="flex items-start"><span class="mr-3 text-rose-500 text-xl"><i class="fa fa-calendar" aria-hidden="true"></i></span> <span>Thứ 4, ngày 15 tháng 10 năm 2025<br>(Nhằm ngày 24 tháng 08 năm Ất Tỵ)</span></li>
+                                <li class="flex items-start"><span class="mr-3 text-rose-500 text-xl"><i class="fa fa-clock" aria-hidden="true"></i></span> <span>Vào lúc 11:00</span></li>
+                                <li class="flex items-start"><span class="mr-3 text-rose-500 text-xl"><i class="fa fa-location-arrow" aria-hidden="true"></i></span> <span>Nhà Hàng Tiệc cưới Hồng Việt, An Sơn, Phường An Bình, Gia Lai (Gần Cầu Ta Ly)</span></li>
+                            </ul>
+                        </div>
+                         <div>
+                            <h3 class="font-semibold text-2xl text-rose-900 mb-4 border-b-2 border-rose-100 pb-2 text-center">Lễ Đàn Trai</h3>
+                            <ul class="space-y-4">
+                                <li class="flex items-start"><span class="mr-3 text-rose-500 text-xl"><i class="fa fa-calendar" aria-hidden="true"></i>"</span> <span>Thứ 7, ngày 1 tháng 11 năm 2025<br>(Nhằm ngày 12 tháng 09 năm Ất Tỵ)</span></li>
+                                <li class="flex items-start"><span class="mr-3 text-rose-500 text-xl"><i class="fa fa-clock" aria-hidden="true"></i></span> <span>Vào lúc 11:00 trưa</span></li>
+                                <li class="flex items-start"><span class="mr-3 text-rose-500 text-xl"><i class="fa fa-location-arrow" aria-hidden="true"></i></span> <span>Nhà hàng Mai Hồng, 82 Đường Hai Bà Trưng, TT. Krông Kmar, Krông Bông, Đắk Lắk</span></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section: Locations -->
+            <section id="locations" class="p-6 sm:p-8 md:p-12 text-center py-16 md:py-24 bg-rose-50/50">
+                <div class="max-w-4xl mx-auto">
+                    <h2 class="font-dancing text-4xl text-rose-800 mb-4">Nơi Tổ Chức</h2>
+                    <p class="text-lg leading-relaxed mb-10 max-w-3xl mx-auto">Đây là khu vực bản đồ chi tiết cho hai buổi lễ quan trọng. Bạn có thể tương tác với bản đồ để xem vị trí và sử dụng nút "Mở chỉ đường" để được dẫn hướng trực tiếp trên điện thoại của mình.</p>
+                    <div class="grid md:grid-cols-2 gap-8 text-center">
+                        <div>
+                             <h3 class="font-semibold text-xl text-rose-900 mb-4">Lễ Đàn Gái</h3>
+                             <div class="w-full h-64 rounded-md overflow-hidden border border-rose-200 shadow-md">
+                                 <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3868.528717876358!2d108.6180373758832!3d13.9614284!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x316edd2b78c33903%3A0x9eab409f3fe70cc6!2zTmjDoCBKw6BuZyBI4buTbmcgVmnhu4d0!5e0!3m2!1svi!2s!4v1726151555555!5m2!1svi!2s" class="w-full h-full" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade" title="Bản đồ đến Nhà Hàng Tiệc cưới Hồng Việt" allow="autoplay; encrypted-media; picture-in-picture"></iframe>
+                             </div>
+                             <a href="https://maps.app.goo.gl/5jwkz7U8VNW9a3Hf6" target="_blank" rel="noopener noreferrer" class="inline-block mt-4 bg-rose-600 text-white font-bold text-sm py-2 px-4 rounded-lg hover:bg-rose-700 transition-colors duration-300">
+                                      <i class="fa fa-map" aria-hidden="true"></i> Mở chỉ đường
+                             </a>
+                        </div>
+                         <div>
+                             <h3 class="font-semibold text-xl text-rose-900 mb-4">Lễ Đàn Trai</h3>
+                             <div class="w-full h-64 rounded-md overflow-hidden border border-rose-200 shadow-md">
+                                 <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d977.8596645396593!2d108.33732926955079!3d12.506299900000003!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x31719553f2831713%3A0xd4563b77ceeea26b!2sMai%20Hong%20Palace!5e0!3m2!1svi!2s!4v1726152174698!5m2!1svi!2s" class="w-full h-full" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade" title="Bản đồ đến nhà hàng Mai Hồng" allow="autoplay; encrypted-media; picture-in-picture"></iframe>
+                             </div>
+                             <a href="https://maps.app.goo.gl/9h2b7N8dJt45W53f7" target="_blank" rel="noopener noreferrer" class="inline-block mt-4 bg-rose-600 text-white font-bold text-sm py-2 px-4 rounded-lg hover:bg-rose-700 transition-colors duration-300">
+                                 <i class="fa fa-map" aria-hidden="true"></i> Mở chỉ đường
+                             </a>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section 3: Story & Gallery -->
+            <section id="album" class="p-6 sm:p-8 md:p-12 text-center py-16 md:py-24">
+                <div class="max-w-3xl mx-auto">
+                    <h2 class="font-dancing text-4xl text-rose-800 mb-4">Album Hình Cưới</h2>
+                    <p class="text-lg leading-relaxed mb-10">Mời bạn cùng xem lại những khoảnh khắc ngọt ngào trong album ảnh cưới của chúng tôi. Bên dưới là một vài con số thú vị về hành trình tình yêu mà chúng tôi đã cùng nhau đi qua.</p>
+                    
+                    <div id="image-slider" class="relative w-full mx-auto rounded-lg shadow-md overflow-hidden mb-12">
+                         <div id="slider-track" class="flex transition-transform duration-500 ease-in-out">
+                            <img src="BIA.jpg" alt="Ảnh cặp đôi 1" class="w-full flex-shrink-0 aspect-video object-cover">
+                            <img src="HV2A2740.JPG" alt="Ảnh cặp đôi 2" class="w-full flex-shrink-0 aspect-video object-cover">
+                            <img src="HV2A2752.JPG" alt="Ảnh cặp đôi 3" class="w-full flex-shrink-0 aspect-video object-cover">
+                            <img src="HV2A2754.JPG" alt="Ảnh cặp đôi 4" class="w-full flex-shrink-0 aspect-video object-cover">
+                            <img src="HV2A2782.JPG" alt="Ảnh cặp đôi 5" class="w-full flex-shrink-0 aspect-video object-cover">
+                            <img src="HV2A2853.JPG" alt="Ảnh cặp đôi 6" class="w-full flex-shrink-0 aspect-video object-cover">
+                            <img src="HV2A2921.JPG" alt="Ảnh cặp đôi 7" class="w-full flex-shrink-0 aspect-video object-cover">
+                            <img src="HV2A2938.JPG" alt="Ảnh cặp đôi 8" class="w-full flex-shrink-0 aspect-video object-cover">
+                            <img src="HV2A2972.JPG" alt="Ảnh cặp đôi 9" class="w-full flex-shrink-0 aspect-video object-cover">
+                            <img src="HV2A3029.JPG" alt="Ảnh cặp đôi 10" class="w-full flex-shrink-0 aspect-video object-cover">
+                            <img src="HV2A3057.JPG" alt="Ảnh cặp đôi 11" class="w-full flex-shrink-0 aspect-video object-cover">
+                            <img src="HV2A3090.JPG" alt="Ảnh cặp đôi 12" class="w-full flex-shrink-0 aspect-video object-cover">
+                            <img src="HV2A3267.JPG" alt="Ảnh cặp đôi 13" class="w-full flex-shrink-0 aspect-video object-cover">
+                            <img src="HV2A3286.JPG" alt="Ảnh cặp đôi 14" class="w-full flex-shrink-0 aspect-video object-cover">
+                            <img src="HV2A3319.JPG" alt="Ảnh cặp đôi 15" class="w-full flex-shrink-0 aspect-video object-cover">
+                            <img src="HV2A3353.JPG" alt="Ảnh cặp đôi 16" class="w-full flex-shrink-0 aspect-video object-cover">
+                            <img src="HV2A3375.JPG" alt="Ảnh cặp đôi 17" class="w-full flex-shrink-0 aspect-video object-cover">
+                            <img src="HV2A3402.JPG" alt="Ảnh cặp đôi 18" class="w-full flex-shrink-0 aspect-video object-cover">
+                            <img src="HV2A3418.JPG" alt="Ảnh cặp đôi 19" class="w-full flex-shrink-0 aspect-video object-cover">
+                            <img src="HV2A3431.JPG" alt="Ảnh cặp đôi 20" class="w-full flex-shrink-0 aspect-video object-cover">
+                            <img src="HV2A3444.JPG" alt="Ảnh cặp đôi 21" class="w-full flex-shrink-0 aspect-video object-cover">
+                            <img src="HV2A3475.JPG" alt="Ảnh cặp đôi 22" class="w-full flex-shrink-0 aspect-video object-cover">
+                            <img src="HV2A3482.JPG" alt="Ảnh cặp đôi 23" class="w-full flex-shrink-0 aspect-video object-cover">
+                            <img src="HV2A3492.JPG" alt="Ảnh cặp đôi 24" class="w-full flex-shrink-0 aspect-video object-cover">
+                            <img src="HV2A3522.JPG" alt="Ảnh cặp đôi 25" class="w-full flex-shrink-0 aspect-video object-cover">
+                            <img src="HV2A3530.JPG" alt="Ảnh cặp đôi 26" class="w-full flex-shrink-0 aspect-video object-cover">
+                            <img src="HV2A3593.JPG" alt="Ảnh cặp đôi 27" class="w-full flex-shrink-0 aspect-video object-cover">
+                            <img src="HV2A3607.JPG" alt="Ảnh cặp đôi 28" class="w-full flex-shrink-0 aspect-video object-cover">
+                            <img src="HV2A3617.JPG" alt="Ảnh cặp đôi 29" class="w-full flex-shrink-0 aspect-video object-cover">
+                            <img src="HV2A3629.JPG" alt="Ảnh cặp đôi 30" class="w-full flex-shrink-0 aspect-video object-cover">
+                            <img src="HV2A3642.JPG" alt="Ảnh cặp đôi 31" class="w-full flex-shrink-0 aspect-video object-cover">
+                            <img src="HV2A3659.JPG" alt="Ảnh cặp đôi 32" class="w-full flex-shrink-0 aspect-video object-cover">
+                            <img src="HV2A3681.JPG" alt="Ảnh cặp đôi 33" class="w-full flex-shrink-0 aspect-video object-cover">
+                            <img src="HV2A3692.JPG" alt="Ảnh cặp đôi 34" class="w-full flex-shrink-0 aspect-video object-cover">
+                            <img src="HV2A3698.JPG" alt="Ảnh cặp đôi 35" class="w-full flex-shrink-0 aspect-video object-cover">
+                            <img src="HV2A3702.JPG" alt="Ảnh cặp đôi 36" class="w-full flex-shrink-0 aspect-video object-cover">
+                            <img src="HV2A3706.JPG" alt="Ảnh cặp đôi 37" class="w-full flex-shrink-0 aspect-video object-cover">
+                            <img src="HV2A3715.JPG" alt="Ảnh cặp đôi 38" class="w-full flex-shrink-0 aspect-video object-cover">
+                            <img src="HV2A3759.JPG" alt="Ảnh cặp đôi 39" class="w-full flex-shrink-0 aspect-video object-cover">
+                            <img src="HV2A3778.JPG" alt="Ảnh cặp đôi 40" class="w-full flex-shrink-0 aspect-video object-cover">
+                            <img src="HV2A3794.JPG" alt="Ảnh cặp đôi 41" class="w-full flex-shrink-0 aspect-video object-cover">
+                        </div>
+                        <button id="prevBtn" class="absolute top-1/2 left-2 -translate-y-1/2 bg-white/50 hover:bg-white/80 p-2 rounded-full text-gray-800 z-10">◀</button>
+                        <button id="nextBtn" class="absolute top-1/2 right-2 -translate-y-1/2 bg-white/50 hover:bg-white/80 p-2 rounded-full text-gray-800 z-10">▶</button>
+                        <div id="slider-dots" class="absolute bottom-4 left-1/2 -translate-x-1/2 flex space-x-2 z-10"></div>
+                    </div>
+                    
+                    <div class="bg-rose-50/50 p-6 rounded-lg border border-rose-100">
+                        <h3 class="font-semibold text-2xl text-rose-900 mb-4">Hành Trình Tình Yêu Bằng Những Con Số</h3>
+                        <p class="mb-6">Mỗi con số là một kỷ niệm ngọt ngào trên con đường chúng tôi đã đi qua cùng nhau.</p>
+                        <div class="chart-container">
+                            <canvas id="loveStoryChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <div class="py-8"><img src="https://images.vexels.com/media/users/3/135786/isolated/preview/a761c2a6d4fe4a9f2506fe4fa00b45b2-decorative-floral-divider.png" alt="Phân cách hoa" class="mx-auto w-48 opacity-70"></div>
+
+            <!-- Section 4: RSVP -->
+            <section id="rsvp" class="p-6 sm:p-8 md:p-12 text-center py-16 md:py-24 bg-rose-50/50">
+                <div class="max-w-xl mx-auto">
+                    <h2 class="font-dancing text-4xl text-rose-800 mb-4">Xác Nhận Tham Dự</h2>
+                    <p class="text-lg leading-relaxed mb-8">Sự hiện diện của bạn là món quà quý giá nhất. Vui lòng phản hồi trước ngày <span style="color: red;">01/10/2025</span> để chúng tôi có sự chuẩn bị chu đáo hơn.</p>
+                    <form id="rsvpForm" class="text-left space-y-4">
+                        <div>
+                            <label for="name" class="block mb-1 font-medium">Họ và Tên</label>
+                            <input type="text" id="name" name="name" class="w-full px-4 py-2 border border-rose-200 rounded-md focus:ring-rose-500 focus:border-rose-500" placeholder="Tứn Thanh Khê" required>
+                        </div>
+                        <div>
+                            <label class="block mb-2 font-medium">Bạn sẽ tham dự chứ?</label>
+                            <div class="flex items-center space-x-6">
+                                <label class="flex items-center"><input type="radio" name="attendance" value="Có, mình sẽ tham dự" class="mr-2 text-rose-600 focus:ring-rose-500" checked> Chắc chắn rồi!</label>
+                                <label class="flex items-center"><input type="radio" name="attendance" value="Không, mình không thể" class="mr-2 text-rose-600 focus:ring-rose-500"> Rất tiếc, mình không thể</label>
+                            </div>
+                        </div>
+                        <div>
+                            <label for="guests" class="block mb-1 font-medium">Số người đi cùng (bao gồm bạn)</label>
+                            <input type="number" id="guests" name="guests" min="1" value="1" class="w-full px-4 py-2 border border-rose-200 rounded-md focus:ring-rose-500 focus:border-rose-500">
+                        </div>
+                        <div>
+                            <div class="flex justify-between items-center mb-1">
+                                <label for="message" class="block font-medium">Gửi lời chúc</label>
+                                <button type="button" id="generateWishBtn" class="text-sm text-rose-600 hover:text-rose-800 font-semibold flex items-center disabled:opacity-50">
+                                    <span id="wishBtnText">✨ Để AI tạo lời chúc tự động nhé</span>
+                                    <svg id="wishSpinner" class="spinner ml-2 h-4 w-4 text-rose-600 hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                                </button>
+                            </div>
+                            <textarea id="message" name="message" rows="4" class="w-full px-4 py-2 border border-rose-200 rounded-md focus:ring-rose-500 focus:border-rose-500" placeholder="Chúc hai bạn trăm năm hạnh phúc..."></textarea>
+                        </div>
+                        <div>
+                            <button type="submit" class="w-full bg-rose-600 text-white font-bold py-3 px-6 rounded-lg hover:bg-rose-700 transition-colors duration-300">Gửi Phản Hồi</button>
+                        </div>
+                    </form>
+                    <p id="form-message" class="mt-4 text-center font-semibold"></p>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- SoundCloud Background Music Player -->
+    <iframe id="soundcloud-player" class="youtube-player-hidden" width="100%" height="166" scrolling="no" frameborder="no" allow="autoplay"
+        src="https://w.soundcloud.com/player/?url=https%3A//soundcloud.com/harmonix_hub/silk-smoke-soulful-rnb-soul-instrumental-type-beat-5&color=%23ff5500&auto_play=true&loop=true&hide_related=true&show_comments=false&show_user=false&show_reposts=false&show_teaser=false&visual=false">
+    </iframe>
+
+    <button id="music-toggle-btn" class="fixed bottom-5 right-5 z-50 w-12 h-12 bg-rose-600/80 text-white rounded-full flex items-center justify-center shadow-lg hover:bg-rose-700 transition-all" aria-label="Bật/Tắt nhạc" title="Đang tải nhạc...">
+        <i id="music-icon" class="fas fa-volume-xmark"></i>
+    </button>
+    
+    <!-- Image Preview Modal -->
+    <div id="image-preview-modal" class="fixed inset-0 z-[100] bg-black/80 flex justify-center items-center p-4 hidden">
+        <button id="close-preview-btn" class="absolute top-4 right-6 text-white text-5xl font-bold hover:text-gray-300 z-20">&times;</button>
+        <button id="preview-prev-btn" class="absolute top-1/2 left-4 text-white text-4xl font-bold hover:text-gray-300 z-20">❮</button>
+        <img id="preview-image" src="" alt="Xem trước ảnh" class="max-w-[95vw] max-h-[95vh] object-contain z-10">
+        <button id="preview-next-btn" class="absolute top-1/2 right-4 text-white text-4xl font-bold hover:text-gray-300 z-20">❯</button>
+    </div>
+    
+    <script>
+        // THAY ĐỔI: Khai báo biến apiKey để sửa lỗi "apiKey is not defined".
+        // Bạn có thể dán API Key của mình vào đây để kích hoạt lại tính năng tạo lời chúc.
+        const apiKey = ""; // XÓA API KEY ĐỂ BẢO MẬT TRƯỚC KHI DEPLOY. Tính năng sẽ tự dùng lời chúc mẫu.
+
+        // --- Navigation Logic ---
+        const mobileMenuButton = document.getElementById('mobile-menu-button');
+        const mobileMenu = document.getElementById('mobile-menu');
+        const mobileLinks = mobileMenu.querySelectorAll('a');
+
+        mobileMenuButton.addEventListener('click', () => {
+            mobileMenu.classList.toggle('hidden');
+        });
+
+        mobileLinks.forEach(link => {
+            link.addEventListener('click', () => {
+                mobileMenu.classList.add('hidden');
+            });
+        });
+
+
+        // --- UI Elements ---
+        const generateWishBtn = document.getElementById('generateWishBtn');
+        const wishSpinner = document.getElementById('wishSpinner');
+        const nameInput = document.getElementById('name');
+        const messageTextarea = document.getElementById('message');
+        const rsvpForm = document.getElementById('rsvpForm');
+        const formMessage = document.getElementById('form-message');
+
+        // --- Gemini API Call Function ---
+        async function callGeminiAPI(prompt, retries = 3, delay = 1000) {
+            // Nếu không có API Key, trả về một lời chúc mẫu thay vì gọi API thật.
+            // Điều này giúp tính năng vẫn hoạt động ở mức cơ bản mà không cần cấu hình.
+            if (!apiKey) {
+                // Giả lập một chút độ trễ để người dùng có cảm giác hệ thống đang "suy nghĩ"
+                await new Promise(res => setTimeout(res, 800));
+                const guestName = nameInput.value.trim() || "Một người bạn";
+                
+                // Tạo một danh sách các lời chúc mẫu để lựa chọn ngẫu nhiên
+                const sampleWishes = [
+                    // Lời chúc gốc
+                    "Chúc hai bạn Hoàng Tuấn và Hoàng Dung trăm năm tình viên mãn, bạc đầu nghĩa phu thê! Mãi hạnh phúc nhé.",
+                    "Thật vui khi được chứng kiến ngày hạnh phúc của Hoàng Tuấn và Hoàng Dung. Chúc hai bạn một hành trình mới đầy ắp tiếng cười và yêu thương.",
+                    "Chúc mừng hạnh phúc của Hoàng Tuấn và Hoàng Dung! Mong rằng tình yêu của hai bạn sẽ luôn nồng nàn như ngày đầu và cùng nhau xây dựng một tương lai tuyệt vời.",
+                    "Gửi đến cặp đôi tuyệt vời nhất hôm nay! Chúc Hoàng Tuấn và Hoàng Dung có một cuộc sống hôn nhân viên mãn, luôn thấu hiểu và là điểm tựa vững chắc cho nhau.",
+                    "Chúc mừng ngày trọng đại! Chúc Hoàng Tuấn và Hoàng Dung mãi mãi hạnh phúc, tình yêu luôn đong đầy và sớm có tin vui nhé!",
+                    // 20 lời chúc mới
+                    "Chúc mừng hạnh phúc Hoàng Tuấn & Hoàng Dung! Cánh cửa mới đã mở ra, chúc hai bạn cùng nhau viết nên một câu chuyện tình yêu thật đẹp.",
+                    "Ngày hôm nay thật tuyệt vời! Chúc cho tình yêu của Hoàng Tuấn và Hoàng Dung sẽ luôn là ngọn lửa ấm áp, sưởi ấm cho nhau suốt cuộc đời.",
+                    "Từ hôm nay, thế giới có thêm một gia đình nhỏ. Chúc Hoàng Tuấn và Hoàng Dung luôn yêu thương, nhường nhịn và cùng nhau vun đắp hạnh phúc.",
+                    "Chúc mừng ngày chung đôi! Mong rằng mỗi ngày của hai bạn đều ngọt ngào như viên kẹo, và rực rỡ như một đóa hoa.",
+                    "Gửi ngàn lời chúc tốt đẹp nhất đến Hoàng Tuấn và Hoàng Dung. Chúc hai bạn có một cuộc sống hôn nhân tràn ngập niềm vui và tiếng cười.",
+                    "Hạnh phúc là một hành trình, không phải đích đến. Chúc Hoàng Tuấn và Hoàng Dung luôn nắm chặt tay nhau trên mọi nẻo đường.",
+                    "Chúc mừng đám cưới vàng! Chúc Hoàng Tuấn và Hoàng Dung sớm có quý tử, gia đình luôn rộn rã tiếng cười trẻ thơ.",
+                    "Thật ngưỡng mộ tình yêu của hai bạn. Chúc Hoàng Tuấn và Hoàng Dung mãi giữ được sự lãng mạn và ngọt ngào như thuở ban đầu.",
+                    "Chúc cho ngôi nhà chung của Hoàng Tuấn và Hoàng Dung luôn là nơi bình yên, là chốn về sau mỗi ngày làm việc mệt mỏi.",
+                    "Hôm nay hai bạn thật rạng rỡ! Chúc Hoàng Tuấn và Hoàng Dung một khởi đầu mới hoàn hảo và một tương lai viên mãn.",
+                    "Tình yêu của hai bạn đã đơm hoa kết trái. Chúc Hoàng Tuấn và Hoàng Dung mãi hạnh phúc, thuận vợ thuận chồng, tát biển Đông cũng cạn.",
+                    "Chúc mừng hạnh phúc lứa đôi! Chúc Hoàng Tuấn và Hoàng Dung luôn là mảnh ghép hoàn hảo nhất của đời nhau.",
+                    "Một chương mới của cuộc đời đã bắt đầu. Chúc Hoàng Tuấn và Hoàng Dung sẽ có những trang sách đầy ắp kỷ niệm đẹp và yêu thương.",
+                    "Gửi lời chúc mừng đến cô dâu xinh đẹp và chú rể tài năng! Chúc Hoàng Tuấn và Hoàng Dung có một cuộc sống hôn nhân như ý.",
+                    "Chúc hai bạn 'sống tới già, răng rụng hết vẫn là của nhau'. Mừng hạnh phúc Hoàng Tuấn & Hoàng Dung!",
+                    "Cung hỷ, cung hỷ! Chúc Hoàng Tuấn và Hoàng Dung luôn đồng lòng, đồng sức xây dựng tổ ấm hạnh phúc của riêng mình.",
+                    "Chúc cho tình yêu của Hoàng Tuấn và Hoàng Dung sẽ vượt qua mọi sóng gió, và ngày càng trở nên bền chặt, sâu đậm hơn.",
+                    "Thật tuyệt khi được ở đây chung vui cùng hai bạn. Chúc Hoàng Tuấn và Hoàng Dung mãi là tình nhân, là tri kỷ của nhau.",
+                    "Chúc mừng ngày vui của Hoàng Tuấn và Hoàng Dung. Mong hai bạn sẽ có một cuộc sống hôn nhân thật nhiều màu sắc và thú vị.",
+                    "Cuối cùng thì thuyền cũng đã cập bến. Chúc thuyền trưởng Hoàng Tuấn và thuyền viên Hoàng Dung có một hải trình hạnh phúc bất tận!"
+                ];
+
+                const randomIndex = Math.floor(Math.random() * sampleWishes.length);
+                const randomWish = sampleWishes[randomIndex];
+
+                return `${randomWish} Thân gửi từ ${guestName}.`;
+            }
+
+            // Cập nhật model sang phiên bản ổn định và mới nhất để tránh lỗi do model preview hết hạn
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${apiKey}`;
+            try {
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
+                });
+                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                const data = await response.json();
+                return data.candidates?.[0]?.content?.parts?.[0]?.text || "Không thể nhận được gợi ý lúc này. Vui lòng thử lại sau.";
+            } catch (error) {
+                if (retries > 0) {
+                    await new Promise(res => setTimeout(res, delay));
+                    return callGeminiAPI(prompt, retries - 1, delay * 2);
+                }
+                console.error("Lỗi khi gọi Gemini API:", error);
+                return "Đã có lỗi xảy ra. Vui lòng thử lại sau.";
+            }
+        }
+
+        // --- Feature: Generate Wedding Wish ---
+        if (generateWishBtn) {
+            generateWishBtn.addEventListener('click', async () => {
+                const guestName = nameInput.value.trim();
+                if (!guestName) {
+                    alert("Vui lòng nhập tên của bạn trước khi tạo lời chúc nhé!");
+                    return;
+                }
+                generateWishBtn.disabled = true;
+                wishSpinner.classList.remove('hidden');
+                messageTextarea.value = "Đang sáng tác lời chúc...";
+                const prompt = `Viết một lời chúc mừng đám cưới ngắn gọn (khoảng 2-3 câu), chân thành và độc đáo cho cặp đôi Hoàng Tuấn và Hoàng Dung. Lời chúc được gửi từ ${guestName}.`;
+                const result = await callGeminiAPI(prompt);
+                messageTextarea.value = result;
+                generateWishBtn.disabled = false;
+                wishSpinner.classList.add('hidden');
+            });
+        }
+        
+        // --- Feature: RSVP Form Submission to Google Sheet ---
+        if (rsvpForm) {
+            const submitButton = rsvpForm.querySelector('button[type="submit"]');
+            const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbw3jUsdkgYJ3DQ2dz5Tq3Q5sUjyXX2BEHnvnkA7c65Wur1eC0smzhBoNiOrXCTA4qbx/exec';
+            rsvpForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                if (!SCRIPT_URL) {
+                    formMessage.textContent = 'Chức năng gửi đang được cấu hình. Vui lòng quay lại sau.';
+                    formMessage.className = 'mt-4 text-center text-orange-700 font-semibold';
+                    return;
+                }
+                const originalButtonText = submitButton.innerHTML;
+                submitButton.disabled = true;
+                submitButton.innerHTML = `<span class="flex items-center justify-center"><svg class="spinner -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>Đang gửi...</span>`;
+                fetch(SCRIPT_URL, { method: 'POST', body: new FormData(rsvpForm) })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.result === 'success') {
+                        formMessage.textContent = 'Cảm ơn bạn đã gửi phản hồi!';
+                        formMessage.className = 'mt-4 text-center text-green-700 font-semibold';
+                        rsvpForm.reset();
+                    } else { throw new Error('Lỗi từ máy chủ.'); }
+                })
+                .catch(error => {
+                    console.error('Lỗi!', error);
+                    formMessage.textContent = 'Gửi phản hồi thất bại. Vui lòng thử lại sau.';
+                    formMessage.className = 'mt-4 text-center text-red-700 font-semibold';
+                })
+                .finally(() => {
+                    submitButton.disabled = false;
+                    submitButton.innerHTML = originalButtonText;
+                    setTimeout(() => { formMessage.textContent = ''; }, 6000);
+                });
+            });
+        }
+
+        // --- Feature: Image Slider ---
+        const sliderTrack = document.getElementById('slider-track');
+        if (sliderTrack) {
+            const prevBtn = document.getElementById('prevBtn');
+            const nextBtn = document.getElementById('nextBtn');
+            const dotsContainer = document.getElementById('slider-dots');
+            const slides = Array.from(sliderTrack.children);
+            const slideCount = slides.length;
+            let currentIndex = 0;
+            let autoPlayInterval;
+            slides.forEach((_, i) => {
+                const dot = document.createElement('button');
+                dot.classList.add('w-3', 'h-3', 'rounded-full', 'bg-white/50', 'hover:bg-white', 'transition-colors');
+                dot.addEventListener('click', () => { goToSlide(i); resetAutoPlay(); });
+                dotsContainer.appendChild(dot);
+            });
+            const dots = Array.from(dotsContainer.children);
+            function updateDots() {
+                dots.forEach((dot, i) => {
+                    dot.classList.toggle('bg-white', i === currentIndex);
+                    dot.classList.toggle('bg-white/50', i !== currentIndex);
+                });
+            }
+            function goToSlide(index) {
+                currentIndex = (index + slideCount) % slideCount;
+                sliderTrack.style.transform = `translateX(-${currentIndex * 100}%)`;
+                updateDots();
+            }
+            function resetAutoPlay() {
+                clearInterval(autoPlayInterval);
+                autoPlayInterval = setInterval(() => goToSlide(currentIndex + 1), 5000);
+            }
+            prevBtn.addEventListener('click', () => { goToSlide(currentIndex - 1); resetAutoPlay(); });
+            nextBtn.addEventListener('click', () => { goToSlide(currentIndex + 1); resetAutoPlay(); });
+            goToSlide(0);
+            resetAutoPlay();
+        }
+        
+        // --- Feature: Image Preview Modal (Lightbox) ---
+        const imagePreviewModal = document.getElementById('image-preview-modal');
+        if (imagePreviewModal && sliderTrack) {
+            const previewImage = document.getElementById('preview-image');
+            const closePreviewBtn = document.getElementById('close-preview-btn');
+            const previewPrevBtn = document.getElementById('preview-prev-btn');
+            const previewNextBtn = document.getElementById('preview-next-btn');
+            const allSliderImages = Array.from(sliderTrack.children);
+            let currentPreviewIndex = 0;
+
+            const showImageInPreview = (index) => {
+                if (index < 0 || index >= allSliderImages.length) return;
+                currentPreviewIndex = index;
+                previewImage.src = allSliderImages[currentPreviewIndex].src;
+            };
+
+            sliderTrack.addEventListener('click', (e) => {
+                if (e.target.tagName === 'IMG') {
+                    const clickedIndex = allSliderImages.indexOf(e.target);
+                    if (clickedIndex !== -1) {
+                        showImageInPreview(clickedIndex);
+                        imagePreviewModal.classList.remove('hidden');
+                        document.body.classList.add('no-scroll');
+                    }
+                }
+            });
+
+            const closePreview = () => {
+                imagePreviewModal.classList.add('hidden');
+                document.body.classList.remove('no-scroll');
+                previewImage.src = ""; // Clear src to stop loading if in progress
+            };
+
+            closePreviewBtn.addEventListener('click', closePreview);
+            imagePreviewModal.addEventListener('click', (e) => {
+                // Close if clicked on the background, not the image or buttons
+                if (e.target === imagePreviewModal) closePreview();
+            });
+
+            previewPrevBtn.addEventListener('click', (e) => { e.stopPropagation(); showImageInPreview((currentPreviewIndex - 1 + allSliderImages.length) % allSliderImages.length); });
+            previewNextBtn.addEventListener('click', (e) => { e.stopPropagation(); showImageInPreview((currentPreviewIndex + 1) % allSliderImages.length); });
+
+            document.addEventListener('keydown', (e) => {
+                if (!imagePreviewModal.classList.contains('hidden')) {
+                    if (e.key === 'Escape') closePreview();
+                    else if (e.key === 'ArrowLeft') previewPrevBtn.click();
+                    else if (e.key === 'ArrowRight') previewNextBtn.click();
+                }
+            });
+        }
+
+        // --- Feature: Love Story Chart ---
+        const chartCtx = document.getElementById('loveStoryChart');
+        if (chartCtx) {
+            new Chart(chartCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['Ngày bên nhau', 'Chuyến đi chung', 'Ly cà phê đã uống', 'Bộ phim đã xem'],
+                    datasets: [{
+                        label: 'Kỷ niệm',
+                        data: [1825, 15, 980, 210],
+                        backgroundColor: [
+                            'rgba(190, 18, 60, 0.6)',
+                            'rgba(219, 39, 119, 0.6)',
+                            'rgba(251, 113, 133, 0.6)',
+                            'rgba(253, 164, 175, 0.6)'
+                        ],
+                        borderColor: [
+                            'rgba(190, 18, 60, 1)',
+                            'rgba(219, 39, 119, 1)',
+                            'rgba(251, 113, 133, 1)',
+                            'rgba(253, 164, 175, 1)'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        title: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return ` ${context.raw.toLocaleString('vi-VN')} kỷ niệm`;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            beginAtZero: true,
+                            grid: { color: 'rgba(190, 18, 60, 0.1)' }
+                        },
+                        y: {
+                            grid: { display: false }
+                        }
+                    }
+                }
+            });
+        }
+
+        // --- Feature: SoundCloud Background Music ---
+        const musicToggleButton = document.getElementById('music-toggle-btn');
+        const musicIcon = document.getElementById('music-icon');
+        const scPlayerIframe = document.getElementById('soundcloud-player');
+        let scWidget;
+        let isMuted = true; // Bắt đầu ở trạng thái tắt tiếng do chính sách của trình duyệt
+
+        if (scPlayerIframe) {
+            scWidget = SC.Widget(scPlayerIframe);
+
+            // Hàm cập nhật icon âm lượng
+            function updateVolumeIcon() {
+                musicIcon.classList.toggle('fa-volume-high', !isMuted);
+                musicIcon.classList.toggle('fa-volume-xmark', isMuted);
+            }
+
+            // Hàm để bật âm thanh, sẽ được gọi một lần duy nhất khi có tương tác
+            const unmuteOnInteraction = () => {
+                if (isMuted) { // Chỉ chạy một lần khi nhạc đang tắt
+                    isMuted = false;
+                    scWidget.setVolume(80); // Đặt âm lượng ở mức hợp lý (0-100)
+                    updateVolumeIcon();
+                    // Xóa hiệu ứng và gợi ý sau khi đã bật nhạc
+                    musicToggleButton.classList.remove('pulse-animation');
+                    musicToggleButton.title = "Bật/Tắt nhạc";
+                }
+            };
+
+            // Khi trình phát sẵn sàng
+            scWidget.bind(SC.Widget.Events.READY, function() {
+                // Trình phát tự động phát nhờ URL, chúng ta chỉ cần đảm bảo nó bắt đầu ở chế độ tắt tiếng
+                scWidget.setVolume(0);
+                isMuted = true;
+                updateVolumeIcon();
+
+                // Thêm hiệu ứng và gợi ý để thu hút người dùng bật nhạc
+                musicToggleButton.classList.add('pulse-animation');
+                musicToggleButton.title = "Nhấp hoặc cuộn trang để bật nhạc";
+
+                // Bật lại tiếng sau khi người dùng tương tác lần đầu (cuộn hoặc click vào đâu đó ngoài nút)
+                const interactionOptions = { once: true, passive: true };
+                document.body.addEventListener('scroll', unmuteOnInteraction, interactionOptions);
+                document.body.addEventListener('click', (e) => {
+                    if (!e.target.closest('#music-toggle-btn')) { unmuteOnInteraction(); }
+                }, interactionOptions);
+            });
+
+            // Xử lý sự kiện nhấp vào nút bật/tắt
+            musicToggleButton.addEventListener('click', () => {
+                if (scWidget) {
+                    // Nếu đây là lần tương tác đầu tiên, hãy bật nhạc. Nếu không, hãy đảo ngược trạng thái.
+                    if (isMuted) {
+                        unmuteOnInteraction();
+                    } else {
+                        isMuted = true; // Đang bật -> tắt
+                        scWidget.setVolume(0);
+                        updateVolumeIcon();
+                    }
+                }
+            });
+        }
+
+        // --- Feature: Floating Bubbles Overlay ---
+        const bubblesOverlay = document.getElementById('bubbles-overlay');
+        if (bubblesOverlay) {
+            const createBubble = () => {
+                const bubble = document.createElement('div');
+                bubble.style.position = 'absolute';
+                bubble.style.bottom = '-100px'; // Start below the viewport
+                // Thay đổi bong bóng thành hình trái tim bằng SVG để đồng bộ với chủ đề, giống như con trỏ chuột.
+                bubble.style.backgroundImage = `url("data:image/svg+xml,%3Csvg width='24' height='24' viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M12.39 20.87a.696.696 0 0 1-.78 0C9.764 19.637 2 14.15 2 8.973c0-6.68 7.85-7.75 10-3.25 2.15-4.5 10-3.43 10 3.25 0 5.178-7.764 10.664-9.61 11.898z' fill='rgba(251, 113, 133, 0.6)'/%3E%3C/svg%3E")`;
+                bubble.style.backgroundSize = 'contain';
+                bubble.style.backgroundRepeat = 'no-repeat';
+
+                const size = Math.random() * 40 + 10; // Bubbles of size 10px to 50px
+                bubble.style.width = `${size}px`;
+                bubble.style.height = `${size}px`;
+                bubble.style.left = `${Math.random() * 100}vw`; // Random horizontal position
+                
+                const animationDuration = Math.random() * 15 + 10; // Animation duration between 10s and 25s
+                const randomRotation = Math.random() * 90 - 45; // Thêm hiệu ứng xoay nhẹ ngẫu nhiên
+                
+                // Animate using Web Animations API for better performance and control
+                bubble.animate([
+                    { transform: 'translateY(0) rotate(0deg)', opacity: Math.random() * 0.6 + 0.3 }, // Start state
+                    { transform: `translateY(-120vh) rotate(${randomRotation}deg)`, opacity: 0 } // End state (move up, rotate, and fade out)
+                ], {
+                    duration: animationDuration * 1000,
+                    easing: 'linear',
+                });
+
+                bubblesOverlay.appendChild(bubble);
+
+                // Clean up the DOM by removing the bubble after its animation is complete
+                setTimeout(() => { bubble.remove(); }, animationDuration * 1000);
+            };
+
+            // Create a new bubble every 700 milliseconds for a continuous effect
+            setInterval(createBubble, 700);
+        }
+    </script>
+</body>
+</html>
