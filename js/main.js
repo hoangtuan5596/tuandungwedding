@@ -1,421 +1,438 @@
-const apiKey = "";
-
-const mobileMenuButton = document.getElementById('mobile-menu-button');
-const mobileMenu = document.getElementById('mobile-menu');
-const mobileLinks = mobileMenu.querySelectorAll('a');
-
-mobileMenuButton.addEventListener('click', () => {
-    mobileMenu.classList.toggle('hidden');
-});
-
-mobileLinks.forEach(link => {
-    link.addEventListener('click', () => {
-        mobileMenu.classList.add('hidden');
-    });
-});
-
-// --- Scroll Animation on Section Load ---
-const animatedElements = document.querySelectorAll('.scroll-animate');
-
-if (animatedElements.length > 0) {
-    const observer = new IntersectionObserver((entries, observer) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                entry.target.classList.add('is-visible');
-                observer.unobserve(entry.target); // Animate only once
-            }
-        });
-    }, {
-        threshold: 0.1, // Trigger when 10% of the element is visible
-        rootMargin: '0px 0px -50px 0px' // Start animation a bit before it's fully in view
-    });
-
-    animatedElements.forEach(el => {
-        observer.observe(el);
-    });
-}
-
-const generateWishBtn = document.getElementById('generateWishBtn');
-const wishSpinner = document.getElementById('wishSpinner');
-const nameInput = document.getElementById('name');
-const messageTextarea = document.getElementById('message');
-const rsvpForm = document.getElementById('rsvpForm');
-const formMessage = document.getElementById('form-message');
-
-async function callGeminiAPI(prompt, retries = 3, delay = 1000) {
-    if (!apiKey) {
-        await new Promise(res => setTimeout(res, 800));
-        const guestName = nameInput.value.trim() || "Một người bạn";
-        const sampleWishes = [
-            "Chúc hai bạn Hoàng Tuấn và Hoàng Dung trăm năm tình viên mãn, bạc đầu nghĩa phu thê! Mãi hạnh phúc nhé.",
-            "Thật vui khi được chứng kiến ngày hạnh phúc của Hoàng Tuấn và Hoàng Dung. Chúc hai bạn một hành trình mới đầy ắp tiếng cười và yêu thương.",
-            "Chúc mừng hạnh phúc của Hoàng Tuấn và Hoàng Dung! Mong rằng tình yêu của hai bạn sẽ luôn nồng nàn như ngày đầu và cùng nhau xây dựng một tương lai tuyệt vời.",
-            "Gửi đến cặp đôi tuyệt vời nhất hôm nay! Chúc Hoàng Tuấn và Hoàng Dung có một cuộc sống hôn nhân viên mãn, luôn thấu hiểu và là điểm tựa vững chắc cho nhau.",
-            "Chúc mừng ngày trọng đại! Chúc Hoàng Tuấn và Hoàng Dung mãi mãi hạnh phúc, tình yêu luôn đong đầy và sớm có tin vui nhé!",
-            "Chúc mừng hạnh phúc Hoàng Tuấn & Hoàng Dung! Cánh cửa mới đã mở ra, chúc hai bạn cùng nhau viết nên một câu chuyện tình yêu thật đẹp.",
-            "Ngày hôm nay thật tuyệt vời! Chúc cho tình yêu của Hoàng Tuấn và Hoàng Dung sẽ luôn là ngọn lửa ấm áp, sưởi ấm cho nhau suốt cuộc đời.",
-            "Từ hôm nay, thế giới có thêm một gia đình nhỏ. Chúc Hoàng Tuấn và Hoàng Dung luôn yêu thương, nhường nhịn và cùng nhau vun đắp hạnh phúc.",
-            "Chúc mừng ngày chung đôi! Mong rằng mỗi ngày của hai bạn đều ngọt ngào như viên kẹo, và rực rỡ như một đóa hoa.",
-            "Gửi ngàn lời chúc tốt đẹp nhất đến Hoàng Tuấn và Hoàng Dung. Chúc hai bạn có một cuộc sống hôn nhân tràn ngập niềm vui và tiếng cười.",
-            "Hạnh phúc là một hành trình, không phải đích đến. Chúc Hoàng Tuấn và Hoàng Dung luôn nắm chặt tay nhau trên mọi nẻo đường.",
-            "Chúc mừng đám cưới vàng! Chúc Hoàng Tuấn và Hoàng Dung sớm có quý tử, gia đình luôn rộn rã tiếng cười trẻ thơ.",
-            "Thật ngưỡng mộ tình yêu của hai bạn. Chúc Hoàng Tuấn và Hoàng Dung mãi giữ được sự lãng mạn và ngọt ngào như thuở ban đầu.",
-            "Chúc cho ngôi nhà chung của Hoàng Tuấn và Hoàng Dung luôn là nơi bình yên, là chốn về sau mỗi ngày làm việc mệt mỏi.",
-            "Hôm nay hai bạn thật rạng rỡ! Chúc Hoàng Tuấn và Hoàng Dung một khởi đầu mới hoàn hảo và một tương lai viên mãn.",
-            "Tình yêu của hai bạn đã đơm hoa kết trái. Chúc Hoàng Tuấn và Hoàng Dung mãi hạnh phúc, thuận vợ thuận chồng, tát biển Đông cũng cạn.",
-            "Chúc mừng hạnh phúc lứa đôi! Chúc Hoàng Tuấn và Hoàng Dung luôn là mảnh ghép hoàn hảo nhất của đời nhau.",
-            "Một chương mới của cuộc đời đã bắt đầu. Chúc Hoàng Tuấn và Hoàng Dung sẽ có những trang sách đầy ắp kỷ niệm đẹp và yêu thương.",
-            "Gửi lời chúc mừng đến cô dâu xinh đẹp và chú rể tài năng! Chúc Hoàng Tuấn và Hoàng Dung có một cuộc sống hôn nhân như ý.",
-            "Chúc hai bạn 'sống tới già, răng rụng hết vẫn là của nhau'. Mừng hạnh phúc Hoàng Tuấn & Hoàng Dung!",
-            "Cung hỷ, cung hỷ! Chúc Hoàng Tuấn và Hoàng Dung luôn đồng lòng, đồng sức xây dựng tổ ấm hạnh phúc của riêng mình.",
-            "Chúc cho tình yêu của Hoàng Tuấn và Hoàng Dung sẽ vượt qua mọi sóng gió, và ngày càng trở nên bền chặt, sâu đậm hơn.",
-            "Thật tuyệt khi được ở đây chung vui cùng hai bạn. Chúc Hoàng Tuấn và Hoàng Dung mãi là tình nhân, là tri kỷ của nhau.",
-            "Chúc mừng ngày vui của Hoàng Tuấn và Hoàng Dung. Mong hai bạn sẽ có một cuộc sống hôn nhân thật nhiều màu sắc và thú vị.",
-            "Cuối cùng thì thuyền cũng đã cập bến. Chúc thuyền trưởng Hoàng Tuấn và thuyền viên Hoàng Dung có một hải trình hạnh phúc bất tận!"
-        ];
-
-        const randomIndex = Math.floor(Math.random() * sampleWishes.length);
-        const randomWish = sampleWishes[randomIndex];
-
-        return `${randomWish} Thân gửi từ ${guestName}.`;
-    }
-
-    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${apiKey}`;
-    try {
-        const response = await fetch(apiUrl, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
-        });
-        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-        const data = await response.json();
-        return data.candidates?.[0]?.content?.parts?.[0]?.text || "Không thể nhận được gợi ý lúc này. Vui lòng thử lại sau.";
-    } catch (error) {
-        if (retries > 0) {
-            await new Promise(res => setTimeout(res, delay));
-            return callGeminiAPI(prompt, retries - 1, delay * 2);
-        }
-        console.error("Lỗi khi gọi Gemini API:", error);
-        return "Đã có lỗi xảy ra. Vui lòng thử lại sau.";
-    }
-}
-
-if (generateWishBtn) {
-    generateWishBtn.addEventListener('click', async () => {
-        const guestName = nameInput.value.trim();
-        if (!guestName) {
-            alert("Vui lòng nhập tên của bạn trước khi tạo lời chúc nhé!");
-            return;
-        }
-        generateWishBtn.disabled = true;
-        wishSpinner.classList.remove('hidden');
-        messageTextarea.value = "Đang sáng tác lời chúc...";
-        const prompt = `Viết một lời chúc mừng đám cưới ngắn gọn (khoảng 2-3 câu), chân thành và độc đáo cho cặp đôi Hoàng Tuấn và Hoàng Dung. Lời chúc được gửi từ ${guestName}.`;
-        const result = await callGeminiAPI(prompt);
-        messageTextarea.value = result;
-        generateWishBtn.disabled = false;
-        wishSpinner.classList.add('hidden');
-    });
-}
-
-if (rsvpForm) {
-    const submitButton = rsvpForm.querySelector('button[type="submit"]');
-    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbw3jUsdkgYJ3DQ2dz5Tq3Q5sUjyXX2BEHnvnkA7c65Wur1eC0smzhBoNiOrXCTA4qbx/exec';
-    rsvpForm.addEventListener('submit', (e) => {
-        e.preventDefault();
-        if (!SCRIPT_URL) {
-            formMessage.textContent = 'Chức năng gửi đang được cấu hình. Vui lòng quay lại sau.';
-            formMessage.className = 'mt-4 text-center text-orange-700 font-semibold';
-            return;
-        }
-        const originalButtonText = submitButton.innerHTML;
-        submitButton.disabled = true;
-        submitButton.innerHTML = `<span class="flex items-center justify-center"><svg class="spinner -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>Đang gửi...</span>`;
-        fetch(SCRIPT_URL, { method: 'POST', body: new FormData(rsvpForm) })
-        .then(response => response.json())
-        .then(data => {
-            if (data.result === 'success') {
-                formMessage.textContent = 'Cảm ơn bạn đã gửi phản hồi!';
-                formMessage.className = 'mt-4 text-center text-green-700 font-semibold';
-                rsvpForm.reset();
-                triggerConfetti();
-            } else { throw new Error('Lỗi từ máy chủ.'); }
-        })
-        .catch(error => {
-            console.error('Lỗi!', error);
-            formMessage.textContent = 'Gửi phản hồi thất bại. Vui lòng thử lại sau.';
-            formMessage.className = 'mt-4 text-center text-red-700 font-semibold';
-        })
-        .finally(() => {
-            submitButton.disabled = false;
-            submitButton.innerHTML = originalButtonText;
-            setTimeout(() => { formMessage.textContent = ''; }, 6000);
-        });
-    });
-}
-
-function triggerConfetti() {
-    const confettiCount = 100;
-    const confettiContainer = document.body;
-    const colors = ['#f43f5e', '#ec4899', '#d946ef', '#fde047', '#ffffff'];
-
-    for (let i = 0; i < confettiCount; i++) {
-        const confetti = document.createElement('div');
-        confetti.style.position = 'fixed';
-        confetti.style.left = '50%';
-        confetti.style.top = '50%';
-        confetti.style.width = `${Math.random() * 10 + 5}px`;
-        confetti.style.height = `${Math.random() * 6 + 4}px`;
-        confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
-        confetti.style.opacity = '0';
-        confetti.style.pointerEvents = 'none';
-        confetti.style.zIndex = '9999';
-        confettiContainer.appendChild(confetti);
-
-        const angle = Math.random() * 2 * Math.PI;
-        const velocity = Math.random() * 300 + 200;
-        const gravity = 1.2;
-        const rotation = Math.random() * 720 - 360;
-
-        const animation = confetti.animate([
-            { transform: `translate(-50%, -50%) rotate(0deg)`, opacity: 1 },
-            { transform: `translate(calc(-50% + ${Math.cos(angle) * velocity}px), calc(-50% + ${Math.sin(angle) * velocity + 400 * gravity}px)) rotate(${rotation}deg)`, opacity: 0 }
-        ], {
-            duration: 1500 + Math.random() * 1000,
-            easing: 'cubic-bezier(0.1, 0.9, 0.9, 1)',
-        });
-
-        animation.onfinish = () => confetti.remove();
-    }
-}
-
-const sliderTrack = document.getElementById('slider-track');
-if (sliderTrack) {
-    const prevBtn = document.getElementById('prevBtn');
-    const nextBtn = document.getElementById('nextBtn');
-    const slides = Array.from(sliderTrack.children);
-    const slideCount = slides.length;
-    let currentIndex = 0;
-    let autoPlayInterval;
-
-    function goToSlide(index) {
-        currentIndex = (index + slideCount) % slideCount;
-        sliderTrack.style.transform = `translateX(-${currentIndex * 100}%)`;
-    }
-    function resetAutoPlay() {
-        clearInterval(autoPlayInterval);
-        autoPlayInterval = setInterval(() => goToSlide(currentIndex + 1), 5000);
-    }
-    prevBtn.addEventListener('click', () => { goToSlide(currentIndex - 1); resetAutoPlay(); });
-    nextBtn.addEventListener('click', () => { goToSlide(currentIndex + 1); resetAutoPlay(); });
-    goToSlide(0);
-    resetAutoPlay();
-}
-
-const imagePreviewModal = document.getElementById('image-preview-modal');
-if (imagePreviewModal && sliderTrack) {
-    const previewImage = document.getElementById('preview-image');
-    const closePreviewBtn = document.getElementById('close-preview-btn');
-    const previewPrevBtn = document.getElementById('preview-prev-btn');
-    const previewNextBtn = document.getElementById('preview-next-btn');
-    const allSliderImages = Array.from(sliderTrack.children);
-    let currentPreviewIndex = 0;
-
-    const showImageInPreview = (index) => {
-        if (index < 0 || index >= allSliderImages.length) return;
-        currentPreviewIndex = index;
-        previewImage.src = allSliderImages[currentPreviewIndex].src;
+document.addEventListener('DOMContentLoaded', () => {
+    /**
+     * Configuration constants.
+     * It's better to keep configurable values in one place.
+     */
+    const CONFIG = {
+        // The API key is intentionally left blank to use the fallback.
+        // To use the Gemini API, provide a valid key here.
+        GEMINI_API_KEY: "",
+        // Google Apps Script URL for the RSVP form.
+        RSVP_SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbw3jUsdkgYJ3DQ2dz5Tq3Q5sUjyXX2BEHnvnkA7c65Wur1eC0smzhBoNiOrXCTA4qbx/exec',
+        SCROLL_ANIMATION_THRESHOLD: 0.1,
+        SCROLL_ANIMATION_ROOT_MARGIN: '0px 0px -50px 0px',
+        SCROLL_TO_TOP_VISIBILITY_Y: 400,
+        BUBBLE_INTERVAL: 700,
     };
 
-    sliderTrack.addEventListener('click', (e) => {
-        if (e.target.tagName === 'IMG') {
-            const clickedIndex = allSliderImages.indexOf(e.target);
+    /**
+     * Initializes the mobile navigation menu.
+     */
+    const initMobileMenu = () => {
+        const menuButton = document.getElementById('mobile-menu-button');
+        const mobileMenu = document.getElementById('mobile-menu');
+        if (!menuButton || !mobileMenu) return;
+
+        const mobileLinks = mobileMenu.querySelectorAll('a');
+
+        menuButton.addEventListener('click', () => {
+            mobileMenu.classList.toggle('hidden');
+        });
+
+        mobileLinks.forEach(link => {
+            link.addEventListener('click', () => {
+                mobileMenu.classList.add('hidden');
+            });
+        });
+    };
+
+    /**
+     * Initializes the album modal popup.
+     */
+    const initAlbumModal = () => {
+        const albumModal = document.getElementById('album-modal');
+        if (!albumModal) return;
+
+        const openTriggers = document.querySelectorAll('.open-album-link, #open-album-btn');
+        const closeBtn = document.getElementById('close-album-btn');
+
+        const openModal = (e) => {
+            e.preventDefault();
+            albumModal.classList.remove('hidden');
+            document.body.classList.add('no-scroll');
+        };
+
+        const closeModal = () => {
+            albumModal.classList.add('hidden');
+            document.body.classList.remove('no-scroll');
+        };
+
+        openTriggers.forEach(trigger => trigger.addEventListener('click', openModal));
+        if (closeBtn) closeBtn.addEventListener('click', closeModal);
+
+        albumModal.addEventListener('click', (e) => {
+            if (e.target === albumModal) {
+                closeModal();
+            }
+        });
+    };
+
+    /**
+     * Initializes scroll-triggered animations for sections.
+     */
+    const initScrollAnimations = () => {
+        const animatedElements = document.querySelectorAll('.scroll-animate');
+        if (animatedElements.length === 0) return;
+
+        const observer = new IntersectionObserver((entries, observer) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('is-visible');
+                    observer.unobserve(entry.target); // Animate only once
+                }
+            });
+        }, {
+            threshold: CONFIG.SCROLL_ANIMATION_THRESHOLD,
+            rootMargin: CONFIG.SCROLL_ANIMATION_ROOT_MARGIN,
+        });
+
+        animatedElements.forEach(el => observer.observe(el));
+    };
+
+    /**
+     * Initializes the RSVP form functionality, including AI wish generation and submission.
+     */
+    const initRsvpForm = () => {
+        const rsvpForm = document.getElementById('rsvpForm');
+        if (!rsvpForm) return;
+
+        const nameInput = document.getElementById('name');
+        const messageTextarea = document.getElementById('message');
+        const generateWishBtn = document.getElementById('generateWishBtn');
+        const wishSpinner = document.getElementById('wishSpinner');
+        const formMessage = document.getElementById('form-message');
+        const submitButton = rsvpForm.querySelector('button[type="submit"]');
+
+        // --- AI Wish Generation ---
+        const callGeminiAPI = async (prompt) => {
+            // Fallback logic if API key is not provided
+            if (!CONFIG.GEMINI_API_KEY) {
+                await new Promise(res => setTimeout(res, 800)); // Simulate network delay
+                const guestName = nameInput.value.trim() || "Một người bạn";
+                const sampleWishes = [
+                    "Chúc hai bạn Hoàng Tuấn và Hoàng Dung trăm năm tình viên mãn, bạc đầu nghĩa phu thê! Mãi hạnh phúc nhé.",
+                    "Thật vui khi được chứng kiến ngày hạnh phúc của Hoàng Tuấn và Hoàng Dung. Chúc hai bạn một hành trình mới đầy ắp tiếng cười và yêu thương.",
+                    "Chúc mừng hạnh phúc của Hoàng Tuấn và Hoàng Dung! Mong rằng tình yêu của hai bạn sẽ luôn nồng nàn như ngày đầu.",
+                    "Gửi đến cặp đôi tuyệt vời nhất hôm nay! Chúc Hoàng Tuấn và Hoàng Dung có một cuộc sống hôn nhân viên mãn.",
+                    "Chúc mừng ngày trọng đại! Chúc Hoàng Tuấn và Hoàng Dung mãi mãi hạnh phúc, tình yêu luôn đong đầy và sớm có tin vui nhé!",
+                ];
+                const randomWish = sampleWishes[Math.floor(Math.random() * sampleWishes.length)];
+                return `${randomWish} Thân gửi từ ${guestName}.`;
+            }
+            // Actual API call logic
+            const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${CONFIG.GEMINI_API_KEY}`;
+            try {
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
+                });
+                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                const data = await response.json();
+                return data.candidates?.[0]?.content?.parts?.[0]?.text || "Không thể nhận được gợi ý lúc này.";
+            } catch (error) {
+                console.error("Lỗi khi gọi Gemini API:", error);
+                return "Đã có lỗi xảy ra. Vui lòng thử lại sau.";
+            }
+        };
+
+        if (generateWishBtn) {
+            generateWishBtn.addEventListener('click', async () => {
+                const guestName = nameInput.value.trim();
+                if (!guestName) {
+                    alert("Vui lòng nhập tên của bạn trước khi tạo lời chúc nhé!");
+                    return;
+                }
+                generateWishBtn.disabled = true;
+                wishSpinner.classList.remove('hidden');
+                messageTextarea.value = "Đang sáng tác lời chúc...";
+                const prompt = `Viết một lời chúc mừng đám cưới ngắn gọn (khoảng 2-3 câu), chân thành và độc đáo cho cặp đôi Hoàng Tuấn và Hoàng Dung. Lời chúc được gửi từ ${guestName}.`;
+                messageTextarea.value = await callGeminiAPI(prompt);
+                generateWishBtn.disabled = false;
+                wishSpinner.classList.add('hidden');
+            });
+        }
+
+        // --- Form Submission ---
+        const triggerConfetti = () => {
+            // This function is well-contained and can stay as is.
+            const confettiCount = 100,
+                colors = ['#f43f5e', '#ec4899', '#d946ef', '#fde047', '#ffffff'];
+            for (let i = 0; i < confettiCount; i++) {
+                const confetti = document.createElement('div');
+                Object.assign(confetti.style, {
+                    position: 'fixed', left: '50%', top: '50%',
+                    width: `${Math.random() * 10 + 5}px`, height: `${Math.random() * 6 + 4}px`,
+                    backgroundColor: colors[Math.floor(Math.random() * colors.length)],
+                    opacity: '0', pointerEvents: 'none', zIndex: '9999'
+                });
+                document.body.appendChild(confetti);
+                const angle = Math.random() * 2 * Math.PI, velocity = Math.random() * 300 + 200,
+                    gravity = 1.2, rotation = Math.random() * 720 - 360;
+                const animation = confetti.animate([
+                    { transform: `translate(-50%, -50%) rotate(0deg)`, opacity: 1 },
+                    { transform: `translate(calc(-50% + ${Math.cos(angle) * velocity}px), calc(-50% + ${Math.sin(angle) * velocity + 400 * gravity}px)) rotate(${rotation}deg)`, opacity: 0 }
+                ], { duration: 1500 + Math.random() * 1000, easing: 'cubic-bezier(0.1, 0.9, 0.9, 1)' });
+                animation.onfinish = () => confetti.remove();
+            }
+        };
+
+        rsvpForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const originalButtonText = submitButton.innerHTML;
+            submitButton.disabled = true;
+            submitButton.innerHTML = `<span class="flex items-center justify-center"><svg class="spinner -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>Đang gửi...</span>`;
+
+            fetch(CONFIG.RSVP_SCRIPT_URL, { method: 'POST', body: new FormData(rsvpForm) })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.result === 'success') {
+                        formMessage.textContent = 'Cảm ơn bạn đã gửi phản hồi!';
+                        formMessage.className = 'mt-4 text-center text-green-700 font-semibold';
+                        rsvpForm.reset();
+                        triggerConfetti();
+                    } else {
+                        throw new Error('Lỗi từ máy chủ Google Script.');
+                    }
+                })
+                .catch(error => {
+                    console.error('Lỗi gửi form!', error);
+                    formMessage.textContent = 'Gửi phản hồi thất bại. Vui lòng thử lại sau.';
+                    formMessage.className = 'mt-4 text-center text-red-700 font-semibold';
+                })
+                .finally(() => {
+                    submitButton.disabled = false;
+                    submitButton.innerHTML = originalButtonText;
+                    setTimeout(() => { formMessage.textContent = ''; }, 6000);
+                });
+        });
+    };
+
+    /**
+     * Initializes the image preview modal for all galleries.
+     */
+    const initImagePreview = () => {
+        const previewModal = document.getElementById('image-preview-modal');
+        if (!previewModal) return;
+
+        const previewImage = document.getElementById('preview-image');
+        const closeBtn = document.getElementById('close-preview-btn');
+        const prevBtn = document.getElementById('preview-prev-btn');
+        const nextBtn = document.getElementById('preview-next-btn');
+
+        let currentImageSet = [];
+        let currentPreviewIndex = 0;
+
+        const showImage = (index) => {
+            if (index < 0 || index >= currentImageSet.length) return;
+            currentPreviewIndex = index;
+            previewImage.src = currentImageSet[currentPreviewIndex].src;
+        };
+
+        const openPreview = (clickedImage, imageContainer) => {
+            currentImageSet = Array.from(imageContainer.querySelectorAll('img'));
+            const clickedIndex = currentImageSet.indexOf(clickedImage);
             if (clickedIndex !== -1) {
-                showImageInPreview(clickedIndex);
-                imagePreviewModal.classList.remove('hidden');
+                showImage(clickedIndex);
+                previewModal.classList.remove('hidden');
                 document.body.classList.add('no-scroll');
             }
-        }
-    });
+        };
 
-    const closePreview = () => {
-        imagePreviewModal.classList.add('hidden');
-        document.body.classList.remove('no-scroll');
-        previewImage.src = "";
-    };
-
-    closePreviewBtn.addEventListener('click', closePreview);
-    imagePreviewModal.addEventListener('click', (e) => {
-        if (e.target === imagePreviewModal) closePreview();
-    });
-
-    previewPrevBtn.addEventListener('click', (e) => { e.stopPropagation(); showImageInPreview((currentPreviewIndex - 1 + allSliderImages.length) % allSliderImages.length); });
-    previewNextBtn.addEventListener('click', (e) => { e.stopPropagation(); showImageInPreview((currentPreviewIndex + 1) % allSliderImages.length); });
-
-    document.addEventListener('keydown', (e) => {
-        if (!imagePreviewModal.classList.contains('hidden')) {
-            if (e.key === 'Escape') closePreview();
-            else if (e.key === 'ArrowLeft') previewPrevBtn.click();
-            else if (e.key === 'ArrowRight') previewNextBtn.click();
-        }
-    });
-}
-
-const scrollToTopBtn = document.getElementById('scrollToTopBtn');
-if (scrollToTopBtn) {
-    window.addEventListener('scroll', () => {
-        if (window.scrollY > 400) {
-            scrollToTopBtn.classList.remove('hidden');
-        } else {
-            scrollToTopBtn.classList.add('hidden');
-        }
-    });
-
-    scrollToTopBtn.addEventListener('click', () => {
-        window.scrollTo({
-            top: 0,
-            behavior: 'smooth'
-        });
-    });
-}
-
-// --- Loading Overlay & Music ---
-const loadingOverlay = document.getElementById('loading-overlay');
-const enterWebsiteBtn = document.getElementById('enter-website-btn');
-const musicToggleButton = document.getElementById('music-toggle-btn');
-const musicIcon = document.getElementById('music-icon');
-const audioPlayer = document.getElementById('background-music');
-let isMuted = true;
-let hasInteracted = false;
-
-function updateVolumeIcon() {
-    if (!musicIcon) return;
-    musicIcon.classList.toggle('fa-volume-high', !isMuted);
-    musicIcon.classList.toggle('fa-volume-xmark', isMuted);
-}
-
-function startMusic() {
-    if (hasInteracted || !audioPlayer) return;
-    hasInteracted = true;
-
-    audioPlayer.play().then(() => {
-        isMuted = false;
-        audioPlayer.volume = 0.8;
-        updateVolumeIcon();
-        if (musicToggleButton) {
-            musicToggleButton.classList.remove('pulse-animation');
-            musicToggleButton.title = "Bật/Tắt nhạc";
-        }
-    }).catch(error => {
-        console.error("Lỗi tự động phát nhạc:", error);
-        hasInteracted = false; // Allow retry
-    });
-}
-
-if (loadingOverlay && enterWebsiteBtn) {
-    document.body.classList.add('no-scroll');
-
-    enterWebsiteBtn.addEventListener('click', () => {
-        startMusic();
-        loadingOverlay.classList.add('opacity-0');
-
-        // After animation, hide overlay and allow scrolling
-        setTimeout(() => {
-            loadingOverlay.style.display = 'none';
+        const closePreview = () => {
+            previewModal.classList.add('hidden');
             document.body.classList.remove('no-scroll');
-        }, 1000); // Match the transition duration in HTML (duration-1000 = 1000ms)
-    });
-}
+            previewImage.src = ""; // Stop image loading
+        };
 
-if (musicToggleButton) {
-    updateVolumeIcon();
-    musicToggleButton.addEventListener('click', () => {
-        if (!hasInteracted) {
-            // This case is unlikely with the overlay, but good for robustness
-            startMusic();
-            return;
-        }
-        isMuted = !isMuted;
-        audioPlayer.volume = isMuted ? 0 : 0.8;
-        updateVolumeIcon();
-    });
-}
+        const setupGallery = (containerId) => {
+            const container = document.getElementById(containerId);
+            if (!container) return;
+            container.addEventListener('click', (e) => {
+                if (e.target.tagName === 'IMG') {
+                    e.preventDefault();
+                    openPreview(e.target, container);
+                }
+            });
+        };
 
-const bubblesOverlay = document.getElementById('bubbles-overlay');
-if (bubblesOverlay) {
-    const createBubble = () => {
-        const bubble = document.createElement('div');
-        bubble.style.position = 'absolute';
-        bubble.style.bottom = '-100px';
-        bubble.style.backgroundImage = `url("data:image/svg+xml,%3Csvg width='24' height='24' viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M12.39 20.87a.696.696 0 0 1-.78 0C9.764 19.637 2 14.15 2 8.973c0-6.68 7.85-7.75 10-3.25 2.15-4.5 10-3.43 10 3.25 0 5.178-7.764 10.664-9.61 11.898z' fill='rgba(251, 113, 133, 0.6)'/%3E%3C/svg%3E")`;
-        bubble.style.backgroundSize = 'contain';
-        bubble.style.backgroundRepeat = 'no-repeat';
-        bubble.style.pointerEvents = 'auto';
-        bubble.style.cursor = 'pointer';
-
-        const size = Math.random() * 40 + 10;
-        bubble.style.width = `${size}px`;
-        bubble.style.height = `${size}px`;
-        bubble.style.left = `${Math.random() * 100}vw`;
-        
-        const animationDuration = Math.random() * 15 + 10;
-        const randomRotation = Math.random() * 90 - 45;
-        
-        const floatAnimation = bubble.animate([
-            { transform: 'translateY(0) rotate(0deg)', opacity: Math.random() * 0.6 + 0.3 },
-            { transform: `translateY(-120vh) rotate(${randomRotation}deg)`, opacity: 0 }
-        ], {
-            duration: animationDuration * 1000,
-            easing: 'linear',
+        // Event Listeners
+        closeBtn.addEventListener('click', closePreview);
+        previewModal.addEventListener('click', (e) => {
+            if (e.target === previewModal) closePreview();
+        });
+        prevBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            showImage((currentPreviewIndex - 1 + currentImageSet.length) % currentImageSet.length);
+        });
+        nextBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            showImage((currentPreviewIndex + 1) % currentImageSet.length);
+        });
+        document.addEventListener('keydown', (e) => {
+            if (previewModal.classList.contains('hidden')) return;
+            if (e.key === 'Escape') closePreview();
+            if (e.key === 'ArrowLeft') prevBtn.click();
+            if (e.key === 'ArrowRight') nextBtn.click();
         });
 
-        bubblesOverlay.appendChild(bubble);
-
-        floatAnimation.onfinish = () => bubble.remove();
-
-        bubble.addEventListener('mouseover', () => {
-            floatAnimation.cancel();
-            const rect = bubble.getBoundingClientRect();
-            bubble.style.display = 'none';
-
-            const particleCount = 5 + Math.floor(Math.random() * 5);
-            for (let i = 0; i < particleCount; i++) {
-                const particle = document.createElement('div');
-                particle.style.position = 'fixed';
-                particle.style.backgroundImage = `url("data:image/svg+xml,%3Csvg width='24' height='24' viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M12.39 20.87a.696.696 0 0 1-.78 0C9.764 19.637 2 14.15 2 8.973c0-6.68 7.85-7.75 10-3.25 2.15-4.5 10-3.43 10 3.25 0 5.178-7.764 10.664-9.61 11.898z' fill='rgba(251, 113, 133, 0.7)'/%3E%3C/svg%3E")`;
-                particle.style.backgroundSize = 'contain';
-                particle.style.backgroundRepeat = 'no-repeat';
-                const particleSize = rect.width * (Math.random() * 0.4 + 0.2);
-                particle.style.width = `${particleSize}px`;
-                particle.style.height = `${particleSize}px`;
-
-                particle.style.left = `${rect.left + (rect.width / 2) - (particleSize / 2)}px`;
-                particle.style.top = `${rect.top + (rect.height / 2) - (particleSize / 2)}px`;
-                particle.style.pointerEvents = 'none';
-                bubblesOverlay.appendChild(particle);
-
-                const angle = Math.random() * 2 * Math.PI;
-                const distance = Math.random() * 50 + 20;
-                const translateX = Math.cos(angle) * distance;
-                const translateY = Math.sin(angle) * distance;
-                const rotation = Math.random() * 360 - 180;
-
-                const particleAnimation = particle.animate({
-                    transform: [
-                        'scale(1) rotate(0deg)',
-                        `translate(${translateX}px, ${translateY}px) scale(0) rotate(${rotation}deg)`
-                    ],
-                    opacity: [1, 0]
-                }, {
-                    duration: 600 + Math.random() * 400,
-                    easing: 'cubic-bezier(0.1, 0.5, 0.5, 1)',
-                });
-
-                particleAnimation.onfinish = () => particle.remove();
-            }
-            bubble.remove();
-        }, { once: true });
+        // Initialize for all galleries on the page
+        ['photo-grid', 'album-preview-grid'].forEach(setupGallery);
     };
 
-    setInterval(createBubble, 700);
-}
+    /**
+     * Initializes the "scroll to top" button.
+     */
+    const initScrollToTop = () => {
+        const scrollToTopBtn = document.getElementById('scrollToTopBtn');
+        if (!scrollToTopBtn) return;
+
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > CONFIG.SCROLL_TO_TOP_VISIBILITY_Y) {
+                scrollToTopBtn.classList.remove('hidden');
+            } else {
+                scrollToTopBtn.classList.add('hidden');
+            }
+        });
+
+        scrollToTopBtn.addEventListener('click', () => {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+    };
+
+    /**
+     * Initializes the welcome overlay and background music player.
+     */
+    const initMusicPlayer = () => {
+        const loadingOverlay = document.getElementById('loading-overlay');
+        const enterBtn = document.getElementById('enter-website-btn');
+        const musicToggleBtn = document.getElementById('music-toggle-btn');
+        const musicIcon = document.getElementById('music-icon');
+        const audioPlayer = document.getElementById('background-music');
+
+        if (!audioPlayer || !loadingOverlay || !enterBtn || !musicToggleBtn) return;
+
+        let isMuted = true;
+        let hasInteracted = false;
+
+        const updateVolumeIcon = () => {
+            musicIcon.classList.toggle('fa-volume-high', !isMuted);
+            musicIcon.classList.toggle('fa-volume-xmark', isMuted);
+        };
+
+        const startMusic = () => {
+            if (hasInteracted) return;
+            hasInteracted = true;
+
+            audioPlayer.play().then(() => {
+                isMuted = false;
+                audioPlayer.volume = 0.8;
+                updateVolumeIcon();
+                musicToggleBtn.classList.remove('pulse-animation');
+                musicToggleBtn.title = "Bật/Tắt nhạc";
+                sessionStorage.setItem('musicShouldPlay', 'true');
+            }).catch(error => {
+                console.error("Lỗi tự động phát nhạc:", error);
+                hasInteracted = false; // Allow user to try again
+            });
+        };
+
+        // Handle welcome overlay
+        document.body.classList.add('no-scroll');
+        enterBtn.addEventListener('click', () => {
+            startMusic();
+            loadingOverlay.classList.add('opacity-0');
+            setTimeout(() => {
+                loadingOverlay.style.display = 'none';
+                document.body.classList.remove('no-scroll');
+            }, 500);
+        });
+
+        // Handle music state persistence across pages
+        window.addEventListener('beforeunload', () => {
+            if (hasInteracted) {
+                sessionStorage.setItem('musicTime', audioPlayer.currentTime);
+                sessionStorage.setItem('musicMuted', isMuted);
+            }
+        });
+
+        if (sessionStorage.getItem('musicShouldPlay') === 'true') {
+            hasInteracted = true;
+            const musicTime = parseFloat(sessionStorage.getItem('musicTime')) || 0;
+            const musicMuted = sessionStorage.getItem('musicMuted') === 'true';
+
+            isMuted = musicMuted;
+            audioPlayer.volume = isMuted ? 0 : 0.8;
+
+            if (!isMuted) {
+                audioPlayer.currentTime = musicTime;
+                audioPlayer.play().catch(e => console.error("Không thể tự động tiếp tục nhạc.", e));
+            }
+            musicToggleBtn.classList.remove('pulse-animation');
+            musicToggleBtn.title = "Bật/Tắt nhạc";
+        }
+        updateVolumeIcon();
+
+        // Handle music toggle button
+        musicToggleBtn.addEventListener('click', () => {
+            if (!hasInteracted) {
+                startMusic();
+                return;
+            }
+            isMuted = !isMuted;
+            audioPlayer.volume = isMuted ? 0 : 0.8;
+            updateVolumeIcon();
+            sessionStorage.setItem('musicShouldPlay', !isMuted ? 'true' : 'false');
+        });
+    };
+
+    /**
+     * Initializes the floating heart bubble effect.
+     */
+    const initBubbleEffect = () => {
+        const bubblesOverlay = document.getElementById('bubbles-overlay');
+        if (!bubblesOverlay) return;
+
+        const createBubble = () => {
+            const bubble = document.createElement('div');
+            const size = Math.random() * 40 + 10;
+            const animationDuration = Math.random() * 15 + 10;
+            const randomRotation = Math.random() * 90 - 45;
+
+            Object.assign(bubble.style, {
+                position: 'absolute',
+                bottom: '-100px',
+                width: `${size}px`,
+                height: `${size}px`,
+                left: `${Math.random() * 100}vw`,
+                backgroundImage: `url("data:image/svg+xml,%3Csvg width='24' height='24' viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M12.39 20.87a.696.696 0 0 1-.78 0C9.764 19.637 2 14.15 2 8.973c0-6.68 7.85-7.75 10-3.25 2.15-4.5 10-3.43 10 3.25 0 5.178-7.764 10.664-9.61 11.898z' fill='rgba(251, 113, 133, 0.6)'/%3E%3C/svg%3E")`,
+                backgroundSize: 'contain',
+                backgroundRepeat: 'no-repeat',
+                pointerEvents: 'none', // Crucial to prevent blocking clicks
+            });
+
+            const floatAnimation = bubble.animate([
+                { transform: 'translateY(0) rotate(0deg)', opacity: Math.random() * 0.6 + 0.3 },
+                { transform: `translateY(-120vh) rotate(${randomRotation}deg)`, opacity: 0 }
+            ], {
+                duration: animationDuration * 1000,
+                easing: 'linear',
+            });
+
+            bubblesOverlay.appendChild(bubble);
+            floatAnimation.onfinish = () => bubble.remove();
+        };
+
+        setInterval(createBubble, CONFIG.BUBBLE_INTERVAL);
+    };
+
+    // --- Initialize all modules ---
+    initMobileMenu();
+    initAlbumModal();
+    initScrollAnimations();
+    initRsvpForm();
+    initImagePreview();
+    initScrollToTop();
+    initMusicPlayer();
+    initBubbleEffect();
+});

@@ -81,6 +81,9 @@
                 animation-timing-function: cubic-bezier(0, 0, 0.2, 1);
             }
         }
+        .animate-bounce-slow {
+            animation: bounce-slow 2s infinite;
+        }
         .nav-link {
             transition: color 0.3s, border-color 0.3s;
         }
@@ -103,16 +106,25 @@
             opacity: 1;
             transform: translateY(0);
         }
+        .gallery-img {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            cursor: zoom-in;
+        }
+        .gallery-img:hover {
+            transform: scale(1.05);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+            z-index: 10;
+        }
     </style>
 </head>
 <body class="text-gray-700">
-    <!-- Loading Overlay -->
-    <div id="loading-overlay" class="fixed inset-0 z-[101] bg-rose-50 flex flex-col justify-center items-center text-center p-4 transition-opacity duration-1000 ease-in-out">
-        <div class="relative text-rose-800">
-            <h2 class="font-dancing text-3xl mb-2">Hoàng Tuấn & Hoàng Dung</h2>
-            <h1 class="font-dancing text-5xl sm:text-6xl font-bold mb-8">Trân trọng kính mời</h1>
+    <!-- Welcome Popup -->
+    <div id="loading-overlay" class="fixed inset-0 z-[101] bg-black/50 backdrop-blur-sm flex justify-center items-center p-4 transition-opacity duration-500 ease-in-out">
+        <div class="relative bg-rose-50 rounded-2xl shadow-2xl p-8 sm:p-12 text-center max-w-lg w-full text-rose-800">
+            <h2 class="font-dancing text-2xl sm:text-3xl mb-2 sm:whitespace-nowrap">Hoàng Tuấn & Hoàng Dung</h2>
+            <h1 class="font-dancing text-4xl sm:text-5xl font-bold mb-8">Trân trọng kính mời</h1>
             <!-- TODO: Nên tải ảnh này về và lưu vào thư mục 'image' để trang web tải nhanh và ổn định hơn. -->
-            <button id="enter-website-btn" class="focus:outline-none mx-auto" style="animation: bounce-slow 2s infinite;">
+            <button id="enter-website-btn" class="focus:outline-none mx-auto animate-bounce-slow">
                 <img src="https://content.pancake.vn/1/s750x1050/fwebp/83/bf/ec/8c/773c7f08f555f31211f154f366ad6d216542348db720bd983c604278-w:1429-h:2000-l:151240-t:image/png.png" alt="Mở thiệp mời" class="w-52 h-auto">
                 <span class="block mt-4 font-dancing text-2xl text-rose-700">Mở thiệp mời</span>
             </button>
@@ -127,9 +139,9 @@
                 <div class="flex justify-between items-center h-16">
                     <a href="#" class="font-dancing text-2xl text-rose-800">H.T & H.D</a>
                     <div class="hidden md:flex items-center space-x-6">
-                        <a href="#details" class="nav-link text-gray-600 hover:text-rose-600 border-b-2 border-transparent hover:border-rose-600 pb-1">Thông Tin</a>
-                        <a href="#locations" class="nav-link text-gray-600 hover:text-rose-600 border-b-2 border-transparent hover:border-rose-600 pb-1">Nơi Tổ Chức</a>
-                        <a href="#album" class="nav-link text-gray-600 hover:text-rose-600 border-b-2 border-transparent hover:border-rose-600 pb-1">Album Cưới</a>
+                        <a href="index.html#details" class="nav-link text-gray-600 hover:text-rose-600 border-b-2 border-transparent hover:border-rose-600 pb-1">Thông Tin</a>
+                        <a href="index.html#locations" class="nav-link text-gray-600 hover:text-rose-600 border-b-2 border-transparent hover:border-rose-600 pb-1">Nơi Tổ Chức</a>
+                        <a href="#" class="open-album-link nav-link text-gray-600 hover:text-rose-600 border-b-2 border-transparent hover:border-rose-600 pb-1">Album Cưới</a>
                         <a href="#gifting" class="nav-link text-gray-600 hover:text-rose-600 border-b-2 border-transparent hover:border-rose-600 pb-1">Mừng Cưới</a>
                         <a href="#rsvp" class="bg-rose-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-rose-700 transition-colors duration-300 text-sm">Phản Hồi</a>
                     </div>
@@ -143,7 +155,7 @@
             <div id="mobile-menu" class="md:hidden hidden bg-white/95 backdrop-blur-sm">
                 <a href="#details" class="block py-3 px-4 text-sm text-gray-700 hover:bg-rose-50">Thông Tin</a>
                 <a href="#locations" class="block py-3 px-4 text-sm text-gray-700 hover:bg-rose-50">Nơi Tổ Chức</a>
-                <a href="#album" class="block py-3 px-4 text-sm text-gray-700 hover:bg-rose-50">Album Cưới</a>
+                <a href="#" class="open-album-link block py-3 px-4 text-sm text-gray-700 hover:bg-rose-50">Album Cưới</a>
                 <a href="#gifting" class="block py-3 px-4 text-sm text-gray-700 hover:bg-rose-50">Mừng Cưới</a>
                 <a href="#rsvp" class="block py-3 px-4 text-sm text-gray-700 hover:bg-rose-50">Phản Hồi</a>
             </div>
@@ -214,61 +226,28 @@
 
             <section id="album" class="scroll-animate p-6 sm:p-8 md:p-12 text-center py-16 md:py-24">
                 <div class="max-w-5xl mx-auto">
-                    <h2 class="font-dancing text-4xl text-rose-800 mb-4">Album Hình Cưới</h2>
-                    <p class="text-lg leading-relaxed mb-2">Mời bạn cùng xem lại những khoảnh khắc ngọt ngào trong album ảnh cưới của chúng tôi.</p>
-                    <p class="text-sm text-gray-600 italic mb-8">Gợi ý: Nhấp vào ảnh để xem rõ nét hơn.</p>
-                    
-                    <div id="image-slider" class="relative w-full mx-auto rounded-lg shadow-md overflow-hidden mb-12">
-                         <div id="slider-track" class="flex transition-transform duration-500 ease-in-out">
-                            <img src="image/BIA.jpg" alt="Ảnh cặp đôi 1" class="w-full flex-shrink-0 aspect-video object-contain bg-black" loading="lazy" decoding="async">
-                            <img src="image/HV2A2740.JPG" alt="Ảnh cặp đôi 2" class="w-full flex-shrink-0 aspect-video object-contain bg-black" loading="lazy" decoding="async">
-                            <img src="image/HV2A2752.JPG" alt="Ảnh cặp đôi 3" class="w-full flex-shrink-0 aspect-video object-contain bg-black" loading="lazy" decoding="async">
-                            <img src="image/HV2A2754.jpg" alt="Ảnh cặp đôi 4" class="w-full flex-shrink-0 aspect-video object-contain bg-black" loading="lazy" decoding="async">
-                            <img src="image/HV2A2782.JPG" alt="Ảnh cặp đôi 5" class="w-full flex-shrink-0 aspect-video object-contain bg-black" loading="lazy" decoding="async">
-                            <img src="image/HV2A2853.JPG" alt="Ảnh cặp đôi 6" class="w-full flex-shrink-0 aspect-video object-contain bg-black" loading="lazy" decoding="async">
-                            <img src="image/HV2A2921.JPG" alt="Ảnh cặp đôi 7" class="w-full flex-shrink-0 aspect-video object-contain bg-black" loading="lazy" decoding="async">
-                            <img src="image/HV2A2938.JPG" alt="Ảnh cặp đôi 8" class="w-full flex-shrink-0 aspect-video object-contain bg-black" loading="lazy" decoding="async">
-                            <img src="image/HV2A2972.JPG" alt="Ảnh cặp đôi 9" class="w-full flex-shrink-0 aspect-video object-contain bg-black" loading="lazy" decoding="async">
-                            <img src="image/HV2A3029.JPG" alt="Ảnh cặp đôi 10" class="w-full flex-shrink-0 aspect-video object-contain bg-black" loading="lazy" decoding="async">
-                            <img src="image/HV2A3057.JPG" alt="Ảnh cặp đôi 11" class="w-full flex-shrink-0 aspect-video object-contain bg-black" loading="lazy" decoding="async">
-                            <img src="image/HV2A3090.JPG" alt="Ảnh cặp đôi 12" class="w-full flex-shrink-0 aspect-video object-contain bg-black" loading="lazy" decoding="async">
-                            <img src="image/HV2A3267.JPG" alt="Ảnh cặp đôi 13" class="w-full flex-shrink-0 aspect-video object-contain bg-black" loading="lazy" decoding="async">
-                            <img src="image/HV2A3286.JPG" alt="Ảnh cặp đôi 14" class="w-full flex-shrink-0 aspect-video object-contain bg-black" loading="lazy" decoding="async">
-                            <img src="image/HV2A3319.JPG" alt="Ảnh cặp đôi 15" class="w-full flex-shrink-0 aspect-video object-contain bg-black" loading="lazy" decoding="async">
-                            <img src="image/HV2A3353.JPG" alt="Ảnh cặp đôi 16" class="w-full flex-shrink-0 aspect-video object-contain bg-black" loading="lazy" decoding="async">
-                            <img src="image/HV2A3375.JPG" alt="Ảnh cặp đôi 17" class="w-full flex-shrink-0 aspect-video object-contain bg-black" loading="lazy" decoding="async">
-                            <img src="image/HV2A3402.JPG" alt="Ảnh cặp đôi 18" class="w-full flex-shrink-0 aspect-video object-contain bg-black" loading="lazy" decoding="async">
-                            <img src="image/HV2A3418.JPG" alt="Ảnh cặp đôi 19" class="w-full flex-shrink-0 aspect-video object-contain bg-black" loading="lazy" decoding="async">
-                            <img src="image/HV2A3431.JPG" alt="Ảnh cặp đôi 20" class="w-full flex-shrink-0 aspect-video object-contain bg-black" loading="lazy" decoding="async">
-                            <img src="image/HV2A3444.JPG" alt="Ảnh cặp đôi 21" class="w-full flex-shrink-0 aspect-video object-contain bg-black" loading="lazy" decoding="async">
-                            <img src="image/HV2A3475.JPG" alt="Ảnh cặp đôi 22" class="w-full flex-shrink-0 aspect-video object-contain bg-black" loading="lazy" decoding="async">
-                            <img src="image/HV2A3482.JPG" alt="Ảnh cặp đôi 23" class="w-full flex-shrink-0 aspect-video object-contain bg-black" loading="lazy" decoding="async">
-                            <img src="image/HV2A3492.JPG" alt="Ảnh cặp đôi 24" class="w-full flex-shrink-0 aspect-video object-contain bg-black" loading="lazy" decoding="async">
-                            <img src="image/HV2A3522.JPG" alt="Ảnh cặp đôi 25" class="w-full flex-shrink-0 aspect-video object-contain bg-black" loading="lazy" decoding="async">
-                            <img src="image/HV2A3530.JPG" alt="Ảnh cặp đôi 26" class="w-full flex-shrink-0 aspect-video object-contain bg-black" loading="lazy" decoding="async">
-                            <img src="image/HV2A3593.JPG" alt="Ảnh cặp đôi 27" class="w-full flex-shrink-0 aspect-video object-contain bg-black" loading="lazy" decoding="async">
-                            <img src="image/HV2A3607.JPG" alt="Ảnh cặp đôi 28" class="w-full flex-shrink-0 aspect-video object-contain bg-black" loading="lazy" decoding="async">
-                            <img src="image/HV2A3617.JPG" alt="Ảnh cặp đôi 29" class="w-full flex-shrink-0 aspect-video object-contain bg-black" loading="lazy" decoding="async">
-                            <img src="image/HV2A3629.JPG" alt="Ảnh cặp đôi 30" class="w-full flex-shrink-0 aspect-video object-contain bg-black" loading="lazy" decoding="async">
-                            <img src="image/HV2A3642.JPG" alt="Ảnh cặp đôi 31" class="w-full flex-shrink-0 aspect-video object-contain bg-black" loading="lazy" decoding="async">
-                            <img src="image/HV2A3659.JPG" alt="Ảnh cặp đôi 32" class="w-full flex-shrink-0 aspect-video object-contain bg-black" loading="lazy" decoding="async">
-                            <img src="image/HV2A3681.JPG" alt="Ảnh cặp đôi 33" class="w-full flex-shrink-0 aspect-video object-contain bg-black" loading="lazy" decoding="async">
-                            <img src="image/HV2A3692.JPG" alt="Ảnh cặp đôi 34" class="w-full flex-shrink-0 aspect-video object-contain bg-black" loading="lazy" decoding="async">
-                            <img src="image/HV2A3698.JPG" alt="Ảnh cặp đôi 35" class="w-full flex-shrink-0 aspect-video object-contain bg-black" loading="lazy" decoding="async">
-                            <img src="image/HV2A3702.JPG" alt="Ảnh cặp đôi 36" class="w-full flex-shrink-0 aspect-video object-contain bg-black" loading="lazy" decoding="async">
-                            <img src="image/HV2A3706.JPG" alt="Ảnh cặp đôi 37" class="w-full flex-shrink-0 aspect-video object-contain bg-black" loading="lazy" decoding="async">
-                            <img src="image/HV2A3715.JPG" alt="Ảnh cặp đôi 38" class="w-full flex-shrink-0 aspect-video object-contain bg-black" loading="lazy" decoding="async">
-                            <img src="image/HV2A3759.JPG" alt="Ảnh cặp đôi 39" class="w-full flex-shrink-0 aspect-video object-contain bg-black" loading="lazy" decoding="async">
-                            <img src="image/HV2A3778.JPG" alt="Ảnh cặp đôi 40" class="w-full flex-shrink-0 aspect-video object-contain bg-black" loading="lazy" decoding="async">
-                            <img src="image/HV2A3794.JPG" alt="Ảnh cặp đôi 41" class="w-full flex-shrink-0 aspect-video object-contain bg-black" loading="lazy" decoding="async">
+                    <h2 class="font-dancing text-4xl text-rose-800 mb-4">Album Kỷ Niệm</h2>
+                    <p class="text-lg leading-relaxed mb-8">Mời bạn cùng xem lại những khoảnh khắc ngọt ngào trong album ảnh cưới của chúng tôi.</p>
+                    <div id="album-preview-grid" class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+                        <div class="col-span-2 md:col-span-2 md:row-span-2 rounded-lg overflow-hidden shadow-md">
+                            <img src="image/HV2A2752.JPG" alt="Ảnh xem trước 1" class="w-full h-full object-cover gallery-img">
                         </div>
-                        <button id="prevBtn" class="absolute top-1/2 left-2 -translate-y-1/2 bg-white/50 hover:bg-white/80 w-10 h-10 rounded-full text-gray-800 z-10 flex items-center justify-center transition-colors">
-                            <i class="fas fa-chevron-left"></i>
-                        </button>
-                        <button id="nextBtn" class="absolute top-1/2 right-2 -translate-y-1/2 bg-white/50 hover:bg-white/80 w-10 h-10 rounded-full text-gray-800 z-10 flex items-center justify-center transition-colors">
-                            <i class="fas fa-chevron-right"></i>
-                        </button>
+                        <div class="rounded-lg overflow-hidden shadow-md">
+                            <img src="image/HV2A2921.JPG" alt="Ảnh xem trước 2" class="w-full h-full object-cover gallery-img">
+                        </div>
+                        <div class="rounded-lg overflow-hidden shadow-md">
+                            <img src="image/HV2A3319.JPG" alt="Ảnh xem trước 3" class="w-full h-full object-cover gallery-img">
+                        </div>
+                        <div class="rounded-lg overflow-hidden shadow-md">
+                            <img src="image/HV2A3617.JPG" alt="Ảnh xem trước 4" class="w-full h-full object-cover gallery-img">
+                        </div>
+                        <div class="rounded-lg overflow-hidden shadow-md">
+                            <img src="image/HV2A2740.JPG" alt="Ảnh xem trước 5" class="w-full h-full object-cover gallery-img">
+                        </div>
                     </div>
+                    <button id="open-album-btn" class="inline-block bg-rose-600 text-white font-bold py-3 px-8 rounded-lg hover:bg-rose-700 transition-colors duration-300 shadow-lg">
+                        Xem Toàn Bộ Album
+                    </button>
                 </div>
             </section>
 
@@ -341,6 +320,71 @@
         </main>
     </div>
 
+    <!-- Image Preview Modal (for galleries) -->
+    <div id="image-preview-modal" class="fixed inset-0 z-[110] bg-black/80 flex justify-center items-center p-4 hidden">
+        <button id="close-preview-btn" class="absolute top-4 right-6 text-white text-5xl font-bold hover:text-gray-300 z-20">&times;</button>
+        <button id="preview-prev-btn" class="absolute top-1/2 left-4 text-white text-4xl font-bold hover:text-gray-300 z-20">❮</button>
+        <img id="preview-image" src="" alt="Xem trước ảnh" class="max-w-[95vw] max-h-[95vh] object-contain z-10">
+        <button id="preview-next-btn" class="absolute top-1/2 right-4 text-white text-4xl font-bold hover:text-gray-300 z-20">❯</button>
+    </div>
+
+    <!-- Full Album Modal -->
+    <div id="album-modal" class="hidden fixed inset-0 z-[100] bg-black/50 backdrop-blur-sm p-4 sm:p-6 overflow-y-auto">
+        <div class="max-w-7xl mx-auto bg-white/80 backdrop-blur-lg shadow-2xl rounded-lg my-8 overflow-hidden p-6 sm:p-8 md:p-12 relative">
+            <button id="close-album-btn" class="absolute top-4 right-4 text-gray-600 hover:text-rose-700 text-3xl font-bold z-10">&times;</button>
+            <header class="text-center mb-12">
+                <h1 class="font-dancing text-5xl text-rose-800 mb-4">Album Hình Cưới</h1>
+                <p class="text-lg leading-relaxed">Những khoảnh khắc ngọt ngào và đáng nhớ của chúng tôi.</p>
+            </header>
+
+            <main>
+                <div id="photo-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+                    <img src="image/BIA.jpg" alt="Ảnh cặp đôi 1" class="w-full h-full object-cover rounded-md shadow-md gallery-img" loading="lazy" decoding="async">
+                    <img src="image/HV2A2740.JPG" alt="Ảnh cặp đôi 2" class="w-full h-full object-cover rounded-md shadow-md gallery-img" loading="lazy" decoding="async">
+                    <img src="image/HV2A2752.JPG" alt="Ảnh cặp đôi 3" class="w-full h-full object-cover rounded-md shadow-md gallery-img" loading="lazy" decoding="async">
+                    <img src="image/HV2A2754.jpg" alt="Ảnh cặp đôi 4" class="w-full h-full object-cover rounded-md shadow-md gallery-img" loading="lazy" decoding="async">
+                    <img src="image/HV2A2782.JPG" alt="Ảnh cặp đôi 5" class="w-full h-full object-cover rounded-md shadow-md gallery-img" loading="lazy" decoding="async">
+                    <img src="image/HV2A2853.JPG" alt="Ảnh cặp đôi 6" class="w-full h-full object-cover rounded-md shadow-md gallery-img" loading="lazy" decoding="async">
+                    <img src="image/HV2A2921.JPG" alt="Ảnh cặp đôi 7" class="w-full h-full object-cover rounded-md shadow-md gallery-img" loading="lazy" decoding="async">
+                    <img src="image/HV2A2938.JPG" alt="Ảnh cặp đôi 8" class="w-full h-full object-cover rounded-md shadow-md gallery-img" loading="lazy" decoding="async">
+                    <img src="image/HV2A2972.JPG" alt="Ảnh cặp đôi 9" class="w-full h-full object-cover rounded-md shadow-md gallery-img" loading="lazy" decoding="async">
+                    <img src="image/HV2A3029.JPG" alt="Ảnh cặp đôi 10" class="w-full h-full object-cover rounded-md shadow-md gallery-img" loading="lazy" decoding="async">
+                    <img src="image/HV2A3057.JPG" alt="Ảnh cặp đôi 11" class="w-full h-full object-cover rounded-md shadow-md gallery-img" loading="lazy" decoding="async">
+                    <img src="image/HV2A3090.JPG" alt="Ảnh cặp đôi 12" class="w-full h-full object-cover rounded-md shadow-md gallery-img" loading="lazy" decoding="async">
+                    <img src="image/HV2A3267.JPG" alt="Ảnh cặp đôi 13" class="w-full h-full object-cover rounded-md shadow-md gallery-img" loading="lazy" decoding="async">
+                    <img src="image/HV2A3286.JPG" alt="Ảnh cặp đôi 14" class="w-full h-full object-cover rounded-md shadow-md gallery-img" loading="lazy" decoding="async">
+                    <img src="image/HV2A3319.JPG" alt="Ảnh cặp đôi 15" class="w-full h-full object-cover rounded-md shadow-md gallery-img" loading="lazy" decoding="async">
+                    <img src="image/HV2A3353.JPG" alt="Ảnh cặp đôi 16" class="w-full h-full object-cover rounded-md shadow-md gallery-img" loading="lazy" decoding="async">
+                    <img src="image/HV2A3375.JPG" alt="Ảnh cặp đôi 17" class="w-full h-full object-cover rounded-md shadow-md gallery-img" loading="lazy" decoding="async">
+                    <img src="image/HV2A3402.JPG" alt="Ảnh cặp đôi 18" class="w-full h-full object-cover rounded-md shadow-md gallery-img" loading="lazy" decoding="async">
+                    <img src="image/HV2A3418.JPG" alt="Ảnh cặp đôi 19" class="w-full h-full object-cover rounded-md shadow-md gallery-img" loading="lazy" decoding="async">
+                    <img src="image/HV2A3431.JPG" alt="Ảnh cặp đôi 20" class="w-full h-full object-cover rounded-md shadow-md gallery-img" loading="lazy" decoding="async">
+                    <img src="image/HV2A3444.JPG" alt="Ảnh cặp đôi 21" class="w-full h-full object-cover rounded-md shadow-md gallery-img" loading="lazy" decoding="async">
+                    <img src="image/HV2A3475.JPG" alt="Ảnh cặp đôi 22" class="w-full h-full object-cover rounded-md shadow-md gallery-img" loading="lazy" decoding="async">
+                    <img src="image/HV2A3482.JPG" alt="Ảnh cặp đôi 23" class="w-full h-full object-cover rounded-md shadow-md gallery-img" loading="lazy" decoding="async">
+                    <img src="image/HV2A3492.JPG" alt="Ảnh cặp đôi 24" class="w-full h-full object-cover rounded-md shadow-md gallery-img" loading="lazy" decoding="async">
+                    <img src="image/HV2A3522.JPG" alt="Ảnh cặp đôi 25" class="w-full h-full object-cover rounded-md shadow-md gallery-img" loading="lazy" decoding="async">
+                    <img src="image/HV2A3530.JPG" alt="Ảnh cặp đôi 26" class="w-full h-full object-cover rounded-md shadow-md gallery-img" loading="lazy" decoding="async">
+                    <img src="image/HV2A3593.JPG" alt="Ảnh cặp đôi 27" class="w-full h-full object-cover rounded-md shadow-md gallery-img" loading="lazy" decoding="async">
+                    <img src="image/HV2A3607.JPG" alt="Ảnh cặp đôi 28" class="w-full h-full object-cover rounded-md shadow-md gallery-img" loading="lazy" decoding="async">
+                    <img src="image/HV2A3617.JPG" alt="Ảnh cặp đôi 29" class="w-full h-full object-cover rounded-md shadow-md gallery-img" loading="lazy" decoding="async">
+                    <img src="image/HV2A3629.JPG" alt="Ảnh cặp đôi 30" class="w-full h-full object-cover rounded-md shadow-md gallery-img" loading="lazy" decoding="async">
+                    <img src="image/HV2A3642.JPG" alt="Ảnh cặp đôi 31" class="w-full h-full object-cover rounded-md shadow-md gallery-img" loading="lazy" decoding="async">
+                    <img src="image/HV2A3659.JPG" alt="Ảnh cặp đôi 32" class="w-full h-full object-cover rounded-md shadow-md gallery-img" loading="lazy" decoding="async">
+                    <img src="image/HV2A3681.JPG" alt="Ảnh cặp đôi 33" class="w-full h-full object-cover rounded-md shadow-md gallery-img" loading="lazy" decoding="async">
+                    <img src="image/HV2A3692.JPG" alt="Ảnh cặp đôi 34" class="w-full h-full object-cover rounded-md shadow-md gallery-img" loading="lazy" decoding="async">
+                    <img src="image/HV2A3698.JPG" alt="Ảnh cặp đôi 35" class="w-full h-full object-cover rounded-md shadow-md gallery-img" loading="lazy" decoding="async">
+                    <img src="image/HV2A3702.JPG" alt="Ảnh cặp đôi 36" class="w-full h-full object-cover rounded-md shadow-md gallery-img" loading="lazy" decoding="async">
+                    <img src="image/HV2A3706.JPG" alt="Ảnh cặp đôi 37" class="w-full h-full object-cover rounded-md shadow-md gallery-img" loading="lazy" decoding="async">
+                    <img src="image/HV2A3715.JPG" alt="Ảnh cặp đôi 38" class="w-full h-full object-cover rounded-md shadow-md gallery-img" loading="lazy" decoding="async">
+                    <img src="image/HV2A3759.JPG" alt="Ảnh cặp đôi 39" class="w-full h-full object-cover rounded-md shadow-md gallery-img" loading="lazy" decoding="async">
+                    <img src="image/HV2A3778.JPG" alt="Ảnh cặp đôi 40" class="w-full h-full object-cover rounded-md shadow-md gallery-img" loading="lazy" decoding="async">
+                    <img src="image/HV2A3794.JPG" alt="Ảnh cặp đôi 41" class="w-full h-full object-cover rounded-md shadow-md gallery-img" loading="lazy" decoding="async">
+                </div>
+            </main>
+        </div>
+    </div>
+
     <button id="scrollToTopBtn" title="Lên đầu trang" class="hidden fixed bottom-20 right-5 z-50 w-12 h-12 bg-rose-600/80 text-white rounded-full flex items-center justify-center shadow-lg hover:bg-rose-700 transition-all duration-300">
         <i class="fas fa-arrow-up"></i>
     </button>
@@ -352,13 +396,6 @@
     <button id="music-toggle-btn" class="fixed bottom-5 right-5 z-50 w-12 h-12 bg-rose-600/80 text-white rounded-full flex items-center justify-center shadow-lg hover:bg-rose-700 transition-all" aria-label="Bật/Tắt nhạc" title="Đang tải nhạc...">
         <i id="music-icon" class="fas fa-volume-xmark"></i>
     </button>
-    
-    <div id="image-preview-modal" class="fixed inset-0 z-[100] bg-black/80 flex justify-center items-center p-4 hidden">
-        <button id="close-preview-btn" class="absolute top-4 right-6 text-white text-5xl font-bold hover:text-gray-300 z-20">&times;</button>
-        <button id="preview-prev-btn" class="absolute top-1/2 left-4 text-white text-4xl font-bold hover:text-gray-300 z-20">❮</button>
-        <img id="preview-image" src="" alt="Xem trước ảnh" class="max-w-[95vw] max-h-[95vh] object-contain z-10">
-        <button id="preview-next-btn" class="absolute top-1/2 right-4 text-white text-4xl font-bold hover:text-gray-300 z-20">❯</button>
-    </div>
     
     <script src="js/main.js" defer></script>
 </body>
