@@ -44,7 +44,6 @@ const formMessage = document.getElementById('form-message');
 
 async function callGeminiAPI(prompt, retries = 3, delay = 1000) {
     if (!apiKey) {
-        /* Trick thôi chứ hông là lộ API key ó */
         await new Promise(res => setTimeout(res, 800));
         const guestName = nameInput.value.trim() || "Một người bạn";
         const sampleWishes = [
@@ -324,7 +323,7 @@ if (loadingOverlay && enterWebsiteBtn) {
         setTimeout(() => {
             loadingOverlay.style.display = 'none';
             document.body.classList.remove('no-scroll');
-        }, 1000); // Match the transition duration in HTML
+        }, 1000); // Match the transition duration in HTML (duration-1000 = 1000ms)
     });
 }
 
@@ -341,7 +340,6 @@ if (musicToggleButton) {
         updateVolumeIcon();
     });
 }
-
 
 const bubblesOverlay = document.getElementById('bubbles-overlay');
 if (bubblesOverlay) {
