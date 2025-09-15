@@ -1,10 +1,26 @@
 <!DOCTYPE html>
-<html lang="vi">
+<html lang="vi" prefix="og: https://ogp.me/ns#">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Hoàng Tuấn & Hoàng Dung</title>
+    <meta name="description" content="Trân trọng kính mời bạn và gia đình đến tham dự lễ thành hôn của chúng tôi. Sự hiện diện của bạn là niềm vinh hạnh cho gia đình chúng tôi.">
     
+    <!-- Open Graph / Facebook / Zalo -->
+    <meta property="og:type" content="website">
+    <!-- TODO: Thay thế 'your-website-url.com' bằng tên miền thực tế của bạn khi triển khai -->
+    <meta property="og:url" content="https://hoangtuan5596.github.io/tuandungwedding/"> 
+    <meta property="og:title" content="Thiệp Mời Cưới | Hoàng Tuấn & Hoàng Dung">
+    <meta property="og:description" content="Trân trọng kính mời bạn và gia đình đến tham dự lễ thành hôn của chúng tôi.">
+    <meta property="og:image" content="https://hoangtuan5596.github.io/tuandungwedding/image/HV2A2752.JPG"> 
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="https://hoangtuan5596.github.io/tuandungwedding/">
+    <meta property="twitter:title" content="Thiệp Mời Cưới | Hoàng Tuấn & Hoàng Dung">
+    <meta property="twitter:description" content="Trân trọng kính mời bạn và gia đình đến tham dự lễ thành hôn của chúng tôi.">
+    <meta property="twitter:image" content="https://hoangtuan5596.github.io/tuandungwedding/image/HV2A2752.JPG">
+
     <script src="https://cdn.tailwindcss.com"></script>
       <link rel="icon" type="image/gif" href="https://www.animationsoftware7.com/img/agifs/effect04.gif" />
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -54,6 +70,16 @@
             70% { transform: scale(1.1); box-shadow: 0 0 10px 20px rgba(225, 29, 72, 0); }
             100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(225, 29, 72, 0); }
         }
+        @keyframes bounce-slow {
+            0%, 100% {
+                transform: translateY(-5%);
+                animation-timing-function: cubic-bezier(0.8, 0, 1, 1);
+            }
+            50% {
+                transform: translateY(0);
+                animation-timing-function: cubic-bezier(0, 0, 0.2, 1);
+            }
+        }
         .nav-link {
             transition: color 0.3s, border-color 0.3s;
         }
@@ -67,9 +93,31 @@
             width: 1px;
             height: 1px;
         }
+        .scroll-animate {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+        }
+        .scroll-animate.is-visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
     </style>
 </head>
-<body class="text-gray-700">    
+<body class="text-gray-700">
+    <!-- Loading Overlay -->
+    <div id="loading-overlay" class="fixed inset-0 z-[101] bg-rose-50 flex flex-col justify-center items-center text-center p-4 transition-opacity duration-1000 ease-in-out">
+        <div class="relative text-rose-800">
+            <h2 class="font-dancing text-3xl mb-2">Hoàng Tuấn & Hoàng Dung</h2>
+            <h1 class="font-dancing text-5xl sm:text-6xl font-bold mb-8">Trân trọng kính mời</h1>
+            <!-- TODO: Nên tải ảnh này về và lưu vào thư mục 'image' để trang web tải nhanh và ổn định hơn. -->
+            <button id="enter-website-btn" class="focus:outline-none mx-auto" style="animation: bounce-slow 2s infinite;">
+                <img src="https://content.pancake.vn/1/s750x1050/fwebp/83/bf/ec/8c/773c7f08f555f31211f154f366ad6d216542348db720bd983c604278-w:1429-h:2000-l:151240-t:image/png.png" alt="Mở thiệp mời" class="w-52 h-auto">
+                <span class="block mt-4 font-dancing text-2xl text-rose-700">Mở thiệp mời</span>
+            </button>
+        </div>
+    </div>
+
     <div id="bubbles-overlay" class="fixed top-0 left-0 w-full h-full pointer-events-none z-40 overflow-hidden"></div>
 
     <div class="max-w-4xl mx-auto bg-white/60 backdrop-blur-md shadow-2xl rounded-lg my-0 sm:my-8 overflow-hidden">
@@ -105,12 +153,12 @@
                 <div class="absolute inset-0 bg-black/40"></div>
                 <div class="relative z-10 text-center p-4">
                     <h2 class="text-xl md:text-2xl tracking-widest mb-4 text-shadow">Save the Date</h2>
-                    <h1 class="font-dancing text-5xl sm:text-6xl md:text-7xl font-bold text-shadow">Hoàng Tuấn & Hoàng Dung</h1>
+                    <h1 class="font-dancing text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-shadow whitespace-nowrap">Hoàng Tuấn & Hoàng Dung</h1>
                     <p class="mt-4 text-lg md:text-xl text-shadow">15.10.2025 – 01.11.2025</p>
                 </div>
             </header>
 
-            <section id="details" class="p-6 sm:p-8 md:p-12 text-center py-16 md:py-24">
+            <section id="details" class="scroll-animate p-6 sm:p-8 md:p-12 text-center py-16 md:py-24">
                 <div class="max-w-3xl mx-auto">
                     <h2 class="font-dancing text-4xl text-rose-800 mb-4">Thông Tin Chi Tiết</h2>
                     <p class="text-lg leading-relaxed mb-10">Mọi thông tin bạn cần cho ngày trọng đại của chúng tôi đều ở đây. Chúng tôi rất mong được chào đón bạn!</p>
@@ -136,7 +184,7 @@
                 </div>
             </section>
 
-            <section id="locations" class="p-6 sm:p-8 md:p-12 text-center py-16 md:py-24 bg-rose-50/50">
+            <section id="locations" class="scroll-animate p-6 sm:p-8 md:p-12 text-center py-16 md:py-24 bg-rose-50/50">
                 <div class="max-w-4xl mx-auto">
                     <h2 class="font-dancing text-4xl text-rose-800 mb-4">Nơi Tổ Chức</h2>
                     <p class="text-lg leading-relaxed mb-10 max-w-3xl mx-auto">Đây là khu vực bản đồ chi tiết cho hai buổi lễ quan trọng. Bạn có thể tương tác với bản đồ để xem vị trí và sử dụng nút "Mở chỉ đường" để được dẫn hướng trực tiếp trên điện thoại của mình.</p>
@@ -163,7 +211,7 @@
                 </div>
             </section>
 
-            <section id="album" class="p-6 sm:p-8 md:p-12 text-center py-16 md:py-24">
+            <section id="album" class="scroll-animate p-6 sm:p-8 md:p-12 text-center py-16 md:py-24">
                 <div class="max-w-5xl mx-auto">
                     <h2 class="font-dancing text-4xl text-rose-800 mb-4">Album Hình Cưới</h2>
                     <p class="text-lg leading-relaxed mb-2">Mời bạn cùng xem lại những khoảnh khắc ngọt ngào trong album ảnh cưới của chúng tôi.</p>
@@ -223,9 +271,9 @@
                 </div>
             </section>
 
-            <div class="py-8"><img src="https://images.vexels.com/media/users/3/135786/isolated/preview/a761c2a6d4fe4a9f2506fe4fa00b45b2-decorative-floral-divider.png" alt="Phân cách hoa" class="mx-auto w-48 opacity-70" loading="lazy" decoding="async"></div>
+            <div class="scroll-animate py-8"><img src="https://images.vexels.com/media/users/3/135786/isolated/preview/a761c2a6d4fe4a9f2506fe4fa00b45b2-decorative-floral-divider.png" alt="Phân cách hoa" class="mx-auto w-48 opacity-70" loading="lazy" decoding="async"></div>
 
-            <section id="rsvp" class="p-6 sm:p-8 md:p-12 text-center py-16 md:py-24 bg-rose-50/50">
+            <section id="rsvp" class="scroll-animate p-6 sm:p-8 md:p-12 text-center py-16 md:py-24 bg-rose-50/50">
                 <div class="max-w-xl mx-auto">
                     <h2 class="font-dancing text-4xl text-rose-800 mb-4">Xác Nhận Tham Dự</h2>
                     <p class="text-lg leading-relaxed mb-8">Sự hiện diện của bạn là món quà quý giá nhất. Vui lòng phản hồi trước ngày <span style="color: red;">01/10/2025</span> để chúng tôi có sự chuẩn bị chu đáo hơn.</p>
@@ -263,7 +311,7 @@
                 </div>
             </section>
 
-            <section id="gifting" class="p-6 sm:p-8 md:p-12 text-center py-16 md:py-24">
+            <section id="gifting" class="scroll-animate p-6 sm:p-8 md:p-12 text-center py-16 md:py-24">
                 <div class="max-w-3xl mx-auto">
                     <h2 class="font-dancing text-4xl text-rose-800 mb-4">Mừng Cưới</h2>
                     <p class="text-lg leading-relaxed mb-10">Sự hiện diện của bạn là niềm vinh hạnh lớn nhất đối với chúng tôi. Nếu bạn có ý định gửi quà mừng, bạn có thể sử dụng thông tin dưới đây. Chúng tôi xin chân thành cảm ơn những tình cảm mà bạn dành cho chúng tôi.</p>

@@ -14,6 +14,27 @@ mobileLinks.forEach(link => {
     });
 });
 
+// --- Scroll Animation on Section Load ---
+const animatedElements = document.querySelectorAll('.scroll-animate');
+
+if (animatedElements.length > 0) {
+    const observer = new IntersectionObserver((entries, observer) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('is-visible');
+                observer.unobserve(entry.target); // Animate only once
+            }
+        });
+    }, {
+        threshold: 0.1, // Trigger when 10% of the element is visible
+        rootMargin: '0px 0px -50px 0px' // Start animation a bit before it's fully in view
+    });
+
+    animatedElements.forEach(el => {
+        observer.observe(el);
+    });
+}
+
 const generateWishBtn = document.getElementById('generateWishBtn');
 const wishSpinner = document.getElementById('wishSpinner');
 const nameInput = document.getElementById('name');
@@ -259,57 +280,68 @@ if (scrollToTopBtn) {
     });
 }
 
+// --- Loading Overlay & Music ---
+const loadingOverlay = document.getElementById('loading-overlay');
+const enterWebsiteBtn = document.getElementById('enter-website-btn');
 const musicToggleButton = document.getElementById('music-toggle-btn');
 const musicIcon = document.getElementById('music-icon');
 const audioPlayer = document.getElementById('background-music');
 let isMuted = true;
 let hasInteracted = false;
 
-if (audioPlayer && musicToggleButton) {
-    function updateVolumeIcon() {
-        musicIcon.classList.toggle('fa-volume-high', !isMuted);
-        musicIcon.classList.toggle('fa-volume-xmark', isMuted);
-    }
+function updateVolumeIcon() {
+    if (!musicIcon) return;
+    musicIcon.classList.toggle('fa-volume-high', !isMuted);
+    musicIcon.classList.toggle('fa-volume-xmark', isMuted);
+}
 
-    const startMusicOnInteraction = () => {
-        if (hasInteracted) return;
-        hasInteracted = true;
+function startMusic() {
+    if (hasInteracted || !audioPlayer) return;
+    hasInteracted = true;
 
-        audioPlayer.play().then(() => {
-            isMuted = false;
-            audioPlayer.volume = 0.8; // Đặt âm lượng ở mức 80% (giá trị từ 0.0 đến 1.0)
-            updateVolumeIcon();
+    audioPlayer.play().then(() => {
+        isMuted = false;
+        audioPlayer.volume = 0.8;
+        updateVolumeIcon();
+        if (musicToggleButton) {
             musicToggleButton.classList.remove('pulse-animation');
             musicToggleButton.title = "Bật/Tắt nhạc";
-        }).catch(error => {
-            console.error("Lỗi tự động phát nhạc:", error);
-            hasInteracted = false;
-            musicToggleButton.title = "Nhấp để bật nhạc";
-        });
-    };
-
-    updateVolumeIcon();
-    musicToggleButton.classList.add('pulse-animation');
-    musicToggleButton.title = "Nhấp hoặc cuộn trang để bật nhạc";
-
-    const interactionOptions = { once: true, passive: true };
-    document.body.addEventListener('scroll', startMusicOnInteraction, interactionOptions);
-    document.body.addEventListener('click', (e) => {
-        if (!e.target.closest('#music-toggle-btn')) {
-            startMusicOnInteraction();
         }
-    }, interactionOptions);
-
-    musicToggleButton.addEventListener('click', () => {
-        if (!hasInteracted) {
-            startMusicOnInteraction();
-        } else {
-            isMuted = !isMuted;
-            audioPlayer.volume = isMuted ? 0 : 0.8;
-            updateVolumeIcon();
-        }
+    }).catch(error => {
+        console.error("Lỗi tự động phát nhạc:", error);
+        hasInteracted = false; // Allow retry
     });
 }
+
+if (loadingOverlay && enterWebsiteBtn) {
+    document.body.classList.add('no-scroll');
+
+    enterWebsiteBtn.addEventListener('click', () => {
+        startMusic();
+        loadingOverlay.classList.add('opacity-0');
+
+        // After animation, hide overlay and allow scrolling
+        setTimeout(() => {
+            loadingOverlay.style.display = 'none';
+            document.body.classList.remove('no-scroll');
+        }, 1000); // Match the transition duration in HTML
+    });
+}
+
+if (musicToggleButton) {
+    updateVolumeIcon();
+    musicToggleButton.addEventListener('click', () => {
+        if (!hasInteracted) {
+            // This case is unlikely with the overlay, but good for robustness
+            startMusic();
+            return;
+        }
+        isMuted = !isMuted;
+        audioPlayer.volume = isMuted ? 0 : 0.8;
+        updateVolumeIcon();
+    });
+}
+
 
 const bubblesOverlay = document.getElementById('bubbles-overlay');
 if (bubblesOverlay) {
